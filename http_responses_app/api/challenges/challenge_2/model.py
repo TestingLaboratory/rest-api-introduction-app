@@ -84,6 +84,8 @@ class ReactorCore:
 
     def remove_control_rod_at(self, index: int) -> str:
         try:
+            if self.__control_rods[index] == "":
+                return f"Control rod at {index} already removed!"
             self.__control_rods[index] = ""
             if self.__state == "Operational":
                 self.__power += 1
@@ -93,7 +95,7 @@ class ReactorCore:
                 self.__power += randint(300, 500)
             return f"Removing control rod at {index}!"
         except IndexError:
-            return f"Control Rod number >>{index}<< already removed!"
+            return f"No such Control Rod with number >>{index}<<!"
 
     def add_control_rod_at(self, index: int) -> str:
         try:
@@ -108,7 +110,10 @@ class ReactorCore:
                 and self.__power > 1500:
             self.__power = 30000
             self.__state = "BOOM!!!"
+        return self.__state
 
+
+    #TODO add fuctionality of fuel rods insertions
 
 if __name__ == '__main__':
     commander = Commander("Sasha")

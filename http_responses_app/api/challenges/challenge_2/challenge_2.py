@@ -1,6 +1,7 @@
 """
 Chernobyl Reactor
 """
+#TODO add cookies flag
 
 from typing import List
 
@@ -120,7 +121,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
     """
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
-    if commander and reactor and AZ5.pressed:
+    if commander and reactor and az_5_button.pressed:
         result = reactor.press_az_5()
         if result == "BOOM!!!":
             return {
@@ -165,7 +166,7 @@ async def look_into_reactor_core(key: str):
 
 
 @router.get("/{key}/control_room/analysis", status_code=status.HTTP_200_OK)
-async def look_into_reactor_core(key: str):
+async def analysis(key: str):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
