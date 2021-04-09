@@ -28,11 +28,12 @@ class Commander:
 
 @dataclass_json
 class ReactorCore:
+    #TODO add flag for fuel rods and power
     __NOMINAL_POWER: int = 1000
 
     def __init__(self, uuid):
         self.__uuid = uuid
-        self.__power: int = randint(100, 500)
+        self.__power: int = randint(300, 500)
         self.__fuel_rods: List[str] = ["fuel_rod" for _ in range(1661)]
         self.__control_rods: List[str] = ["control_rod" for _ in range(211)]
         # initial control rods removal
@@ -101,7 +102,7 @@ class ReactorCore:
         except IndexError:
             return f"Control Rod number >>{index}<< already in place!"
 
-    def press_AZ_5(self):
+    def press_az_5(self):
         self.__control_rods = map(lambda x: "control_rod", self.__control_rods)
         if self.__state == "Heavily Xenon-135 poisoned!" \
                 and self.__power > 1500:
@@ -113,10 +114,10 @@ if __name__ == '__main__':
     commander = Commander("Sasha")
     print(commander)
     core = ReactorCore(commander.uuid)
-    print(core.power)
-    print(core.fuel_rods)
-    print(core.control_rods)
-    print(core.state)
+    # print(core.power)
+    # print(core.fuel_rods)
+    # print(core.control_rods)
+    # print(core.state)
     for index in range(211):
         core.remove_control_rod_at(index)
         print(core.power)
