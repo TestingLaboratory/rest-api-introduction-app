@@ -121,7 +121,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor and AZ5.pressed:
-        result = reactor.press_AZ_5()
+        result = reactor.press_az_5()
         if result == "BOOM!!!":
             return {
                 "sound": result,
