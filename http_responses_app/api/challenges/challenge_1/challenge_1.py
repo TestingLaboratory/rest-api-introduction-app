@@ -11,12 +11,11 @@ from fastapi import APIRouter, Request, status
 from starlette.responses import JSONResponse
 import uuid
 
-from .authorization import AUTH_KEY, AUTH_KEY_VALUE, SECRET
-from ...model.challenge import ChallengeSecret, PhoneCall, Comrade, Introduction
+from http_responses_app.api.challenges.authorization import AUTH_KEY, AUTH_KEY_VALUE, SECRET
+from http_responses_app.api.challenges.challenge_1.model import ChallengeSecret, PhoneCall, Comrade, Introduction
 
 router = APIRouter(prefix="/challenge/1")
 Mission = namedtuple("mission", ["person", "phone_number", "subject"])  # task, resoultion?
-# TODO probably a class needed
 
 comrades = []
 
