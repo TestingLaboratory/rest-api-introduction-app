@@ -4,8 +4,8 @@ from fastapi import APIRouter
 from starlette import status
 from starlette.responses import JSONResponse
 
-from http_responses_app.core.responses import get_response, post_response, put_response
-from http_responses_app.model.pong import Pong
+from rest_introduction_app.api.fundamentals.core.responses import get_response, post_response, put_response
+from rest_introduction_app.api.fundamentals.model.pong import Pong
 
 router = APIRouter()
 
