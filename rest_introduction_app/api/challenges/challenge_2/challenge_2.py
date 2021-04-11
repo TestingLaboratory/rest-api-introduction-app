@@ -7,7 +7,7 @@ from fastapi import APIRouter
 from starlette import status
 from starlette.responses import JSONResponse
 
-from http_responses_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
+from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
 
 router = APIRouter(prefix="/challenge/2")
 

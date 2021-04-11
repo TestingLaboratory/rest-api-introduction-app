@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Request
 
-from http_responses_app.api.fundamentals.core.headers_dicts import playing_with_headers_non_authorized
-from http_responses_app.api.fundamentals.core.headers_dicts import playing_with_headers_auth_dict
-from http_responses_app.api.fundamentals.core.headers_dicts import API_KEY
-from http_responses_app.api.fundamentals.core.responses import get_response
+from rest_introduction_app.api.fundamentals.core.headers_dicts import playing_with_headers_non_authorized
+from rest_introduction_app.api.fundamentals.core.headers_dicts import playing_with_headers_auth_dict
+from rest_introduction_app.api.fundamentals.core.headers_dicts import API_KEY
+from rest_introduction_app.api.fundamentals.core.responses import get_response
 
 router = APIRouter()
 

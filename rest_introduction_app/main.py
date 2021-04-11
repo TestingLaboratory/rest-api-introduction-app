@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from http_responses_app.api.api import api_router
+from rest_introduction_app.api.api import api_router
 
 app = FastAPI(
     title='Testing HTTP responses',

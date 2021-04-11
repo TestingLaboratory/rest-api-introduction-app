@@ -3,8 +3,8 @@ from typing import Optional
 
 from starlette.responses import JSONResponse
 
-from http_responses_app.api.fundamentals.core.response_codes_information import get_code_information
-from http_responses_app.api.fundamentals.model.pong import Pong
+from rest_introduction_app.api.fundamentals.core.response_codes_information import get_code_information
+from rest_introduction_app.api.fundamentals.model.pong import Pong
 
 
 def get_response(status_code: int, additional_info: dict = None):
