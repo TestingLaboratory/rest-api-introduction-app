@@ -5,6 +5,7 @@ Missions for:
 - Boron, Sand, helicopters (random helicopter crashes into crane) 422Bad request if helicopter is overloaded
 - Reactor building safety - percentages of Boron/Sand bags endpoint
 """
+#TODO finish
 from collections import namedtuple
 
 from fastapi import APIRouter, Request, status
