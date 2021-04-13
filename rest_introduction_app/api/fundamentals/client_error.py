@@ -1,17 +1,31 @@
-from fastapi import APIRouter
-from http_responses_app.core.responses import get_response
+import secrets
+
+from fastapi import APIRouter, HTTPException
+from fastapi.params import Depends
+from fastapi.security import HTTPBasicCredentials, HTTPBasic
+from starlette import status
+
+from .core.responses import get_response
+
 router = APIRouter()
 
-data = {}
-
-
-@router.on_event("startup")
-def startup_event():
-    data["quota"] = 3
-    data["limit"] = 0
+security = HTTPBasic()
 
 
 @router.get("/limited")
-async def get_response_403():
-    data["limit"] += 1
-    return get_response(200 if data["limit"] < data["quota"] else 403)
+def get_limited_resource(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Username: Captain_snack, password: LateNightSausage
+    """
+    correct_username = secrets.compare_digest(credentials.username, "Captain_snack")
+    correct_password = secrets.compare_digest(credentials.password, "LateNightSausage")
+    if not (correct_username and correct_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"The sausage is not allowed for the {credentials.username}."
+        )
