@@ -9,7 +9,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette import status
 from starlette.responses import JSONResponse
 
-from rest_introduction_app.api.challenges.challenge_4.model import UserRegistration, User
+from rest_introduction_app.api.challenges.challenge_4.model import UserRegistration, User, to_base64, rot13, HQMessage
 
 router = APIRouter(prefix="/challenge/4")
 security = HTTPBasic()
@@ -28,6 +28,7 @@ async def get_information():
                    f"to decipher those messages. "
                    f"Hurry though, the timer is set to 2 hours. After that time the messages "
                    f"will be wiped out due to security reasons. "
+                   f"There are four flags waiting. "
                    f"Don't fail me. "
     }
 
@@ -35,6 +36,7 @@ async def get_information():
 AUTHORIZED: List[dict] = []
 USERS: List[User] = []
 AUTH_KEY = f"{uuid.uuid4()}_granted_to_see_restricted_documents_{uuid.uuid4()}"
+MESSAGES = {}
 
 
 def has_access(authorized_by: Optional[str] = Header(None)):
@@ -70,7 +72,8 @@ def register(user_registration: UserRegistration):
     else:
         USERS.append(user)
         status_code = status.HTTP_201_CREATED
-        content = {"message": f"User {user.username} successfully registered"}
+        content = {"message": f"User {user.username} successfully registered"
+                              f"User's unique identification number is: {user.uuid}"}
     return JSONResponse(content=content, status_code=status_code)
 
 
@@ -83,19 +86,72 @@ async def login(credentials: HTTPBasicCredentials = Depends(security)):
         )
 
 
-@router.put("/final_message", status_code=status.HTTP_202_ACCEPTED,
+@router.get("/encrypted_message", status_code=status.HTTP_202_ACCEPTED,
             dependencies=[Depends(has_access)])
-async def final_message_post(credentials: HTTPBasicCredentials = Depends(security)):
+async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        user = User(credentials.username, credentials.password)
+        if not MESSAGES.get(user.uuid):
+            flag = f"${{flag_agency_decryptor_{user.uuid}}}"
+            flag = to_base64(flag)
+            flag = to_base64(flag)
+            flag = rot13(flag)
+            flag = to_base64(flag)
+            flag = to_base64(flag)
+            flag = to_base64(flag)
+            flag = rot13(flag)
+            flag = to_base64(flag)
+            MESSAGES[user.uuid]["flag"] = flag
+            message_for_hq = f"We serve the People's Internet Network Deciphering Agency"
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = rot13(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = rot13(message_for_hq)
+            message_for_hq = rot13(message_for_hq)
+            message_for_hq = rot13(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            message_for_hq = to_base64(message_for_hq)
+            MESSAGES[user.uuid]["secret"] = message_for_hq
+
+            response = JSONResponse(
+                content={
+                    "message": MESSAGES.get(user.uuid).get("flag"),
+                    "secret": f"POST {user.uuid}/headquarters with a decoded secret,"
+                              f"but first GET the secret from the /box"
+                }
+            )
+            response.set_cookie("message", "UBURUBUBURUBUB")
+            response.set_cookie("secret", "UBUBUBURURURUBUBBURUB")
+            return response
+
+
+@router.get("/box", status_code=status.HTTP_202_ACCEPTED,
+            dependencies=[Depends(has_access)])
+async def get_info_from_box(user_uuid: str, message_type: str,
+                            credentials: HTTPBasicCredentials = Depends(security)):
+    if has_credentials(credentials) and MESSAGES.get(user_uuid, {}).get(message_type):
         return JSONResponse(
-            content=""  # todo FINISH
+            content=MESSAGES.get(user_uuid, {})
         )
 
 
-@router.patch("/final_message", status_code=status.HTTP_202_ACCEPTED,
-              dependencies=[Depends(has_access)])
-async def final_message_post(credentials: HTTPBasicCredentials = Depends(security)):
+@router.post("{user_uuid}/headquarters", status_code=status.HTTP_202_ACCEPTED,
+             dependencies=[Depends(has_access)])
+async def final_message_post(user_uuid: str, hq_message: HQMessage,
+                             credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        content = {
+            "message": f""
+        }
+
+        if hq_message.message == f"We serve the People's Internet Network Deciphering Agency":
+            content["message"] = f"${{flag_you_know_how_acronyms_work_right?_{user_uuid}}}"
+        else:
+            content["message"] = f"${{not_yet_agent_{user_uuid}}}"
+
         return JSONResponse(
-            content=""  # todo FINISH
+            content=content
         )
