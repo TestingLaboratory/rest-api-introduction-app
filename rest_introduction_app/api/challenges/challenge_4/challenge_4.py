@@ -128,14 +128,20 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
             return response
 
 
-@router.get("/box", status_code=status.HTTP_202_ACCEPTED,
+@router.get("/box", status_code=status.HTTP_200_OK,
             dependencies=[Depends(has_access)])
 async def get_info_from_box(user_uuid: str, message_type: str,
                             credentials: HTTPBasicCredentials = Depends(security)):
-    if has_credentials(credentials) and MESSAGES.get(user_uuid, {}).get(message_type):
-        return JSONResponse(
-            content=MESSAGES.get(user_uuid, {})
-        )
+    if has_credentials(credentials):
+        if secret := MESSAGES.get(user_uuid, {}).get(message_type):
+            return JSONResponse(
+                content={"envelope": secret}
+            )
+        else:
+            return JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={"message": "The box looks empty..."}
+            )
 
 
 @router.post("{user_uuid}/headquarters", status_code=status.HTTP_202_ACCEPTED,

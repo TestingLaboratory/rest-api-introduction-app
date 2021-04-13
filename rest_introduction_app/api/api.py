@@ -4,6 +4,7 @@ from rest_introduction_app.api.challenges.challenge_1 import challenge_1
 from rest_introduction_app.api.challenges.challenge_2 import challenge_2
 from rest_introduction_app.api.challenges.challenge_3 import challenge_3
 from rest_introduction_app.api.challenges.challenge_4 import challenge_4
+from rest_introduction_app.api.challenges.challenge_5 import challenge_5
 from rest_introduction_app.api.challenges.challenge_primer import challenge_primer
 from rest_introduction_app.api.fundamentals import playing_with_headers, client_error, server_error, successful, \
     basic_authentication, serving_images, cookies
@@ -34,4 +35,6 @@ api_router.include_router(router=challenge_2.router,
 api_router.include_router(router=challenge_3.router,
                           tags=["Challenge 3 - You are the Genome Researcher."])
 api_router.include_router(router=challenge_4.router,
-                          tags=["Challenge 4 - Cryptography"])
+                          tags=["Challenge 4 - Pseudo-Cryptography"])
+api_router.include_router(router=challenge_5.router,
+                          tags=["Challenge 5 - The METHODical Collector"])
