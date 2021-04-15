@@ -14,10 +14,10 @@
 # flaga eradicator - po usunięciu całego kodu RNA DONE
 # flaga architect po dodaniu 50 postów tripletów i zdobyciu flagi architekt DONE
 # flaga observer po 5 getach na /rna DONE
-
+import copy
 from typing import List
 
-from fastapi import APIRouter, Query, HTTPException, Depends
+from fastapi import APIRouter, Query, HTTPException, Depends, Path
 from fastapi.security import HTTPBasicCredentials, HTTPBasic
 from starlette import status
 from starlette.responses import JSONResponse
@@ -45,6 +45,7 @@ def all_flags_collected(credentials: HTTPBasicCredentials):
 
 def is_winner(credentials: HTTPBasicCredentials):
     lab_technician = next(filter(lambda technician: technician.name == credentials.username, TECHNICIANS), None)
+    lab_technician.calculate_achievements()
     return all(lab_technician.achievements[achievement] for achievement in lab_technician.achievements)
 
 
@@ -101,7 +102,8 @@ async def achievements(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         lab_technician = next(filter(lambda technician: technician.name == credentials.username, TECHNICIANS), None)
         return {
-            "achievements": lab_technician.achievements
+            "achievements": lab_technician.achievements,
+            "proteomaster_flag": lab_technician.proteomaster
         }
 
 
@@ -127,33 +129,36 @@ async def get_rna(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.observer += 1
-        observer_flag = f" ${{flag_observer_{technician.uuid}}}" if technician.observer >= 5 else ""
+        observer_flag = f"${{flag_observer_{technician.uuid}}}" if technician.observer >= 5 else ""
         flags_completed = all_flags_collected(credentials)
         return {
-            "sample": sequence["copy"].replace("_", ""),
+            "sample": sequence["copy"],
             "message": f"{observer_flag}{flags_completed}"
         }
 
 
-@router.get("/triplets/{number}", status_code=status.HTTP_200_OK)
-async def get_triplet(number: int,
+@router.get("/copy", status_code=status.HTTP_200_OK)
+async def get_copy(credentials: HTTPBasicCredentials = Depends(security)):
+    """
+    Get this resource to get a copy of primary sequence
+    """
+    if has_credentials(credentials):
+        sequence["copy"] = sequence["isolated"]
+        return JSONResponse({
+            "message": "The primary sequence has been copied to your sample. PCR reaction went completed 100% fidelity."
+        })
+
+
+@router.get("/triplets/{triplet_id}", status_code=status.HTTP_200_OK)
+async def get_triplet(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
                       credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        triplet_index = (number - 1) * 3
+        triplet_index = (triplet_id - 1) * 3
+        triplet = sequence["copy"].replace("_", "")[triplet_index: triplet_index + 3]
         flags_completed = all_flags_collected(credentials)
-        if triplet_index < len(sequence["copy"]) - 3:
-            return {
-                "message": f"triplet at position {number}: " + "".join(
-                    sequence["copy"][triplet_index: triplet_index + 3])
-                           + "".join({flags_completed})
-            }
-        else:
-            return JSONResponse(
-                status_code=404,
-                content={
-                    "message": "Check the length of your sequence. It's not as long as you think."
-                }
-            )
+        return {
+            "message": f"Triplet at position {triplet_id}: {triplet}{flags_completed}"
+        }
 
 
 @router.post("/triplets/", status_code=status.HTTP_201_CREATED)
@@ -162,7 +167,7 @@ async def add_triplet(triplet_to_add: str = Query(..., min_length=3, max_length=
     if has_credentials(credentials):
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.aminoacid_appender += 1
-        sequence["copy"] = sequence["copy"] + triplet_to_add
+        sequence["copy"] = sequence["copy"].replace("_", "") + triplet_to_add
         aminoacid_appender_flag = f" ${{flag_aminoacid_appender_{technician.uuid}}}" \
             if technician.aminoacid_appender >= 10 else ""
         architect_appender_flag = f" ${{flag_aminoacid_appender_{technician.uuid}}}" \
@@ -176,11 +181,11 @@ async def add_triplet(triplet_to_add: str = Query(..., min_length=3, max_length=
 
 
 @router.patch("/triplets/{triplet_id}", status_code=status.HTTP_200_OK)
-async def triplet_replacement(triplet_id: int = Query(..., le=len(sequence["copy"]) - 3),
+async def triplet_replacement(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
                               triplet_to_add: str = Query(..., min_length=3, max_length=3, regex="[AUCG]"),
                               credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        sequence_list = list(sequence["copy"])
+        sequence_list = list(sequence["copy"].replace("_", ""))
         index = (triplet_id - 1) * 3
         sequence_list[index:index + 3] = list(triplet_to_add)
         sequence["copy"] = "".join(sequence_list)
@@ -206,16 +211,16 @@ async def sequence_replacement(triplet_to_add: str = Query(..., min_length=3, ma
 
 
 @router.delete("/triplets/{triplet_id}", status_code=status.HTTP_202_ACCEPTED)
-async def triplet_deletion(triplet_id: int,
+async def triplet_deletion(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
                            credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        sequence_list = list(sequence["copy"])
+        sequence_list = list(sequence["copy"].replace("_", ""))
         index = (triplet_id - 1) * 3
         sequence_list[index:index + 3] = ("_", "_", "_")
         sequence["copy"] = "".join(sequence_list)
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.reductor += 1
-        eradicator_flag = f" ${{flag_reductor_{technician.uuid}}}" if not sequence else ""
+        eradicator_flag = f" ${{flag_reductor_{technician.uuid}}}" if not sequence["copy"].replace("_", "") else ""
         reductor_flag = f" ${{flag_reductor_{technician.uuid}}}" if technician.reductor >= 10 else ""
         flags_completed = all_flags_collected(credentials)
         return {
@@ -225,31 +230,23 @@ async def triplet_deletion(triplet_id: int,
         }
 
 
-@router.get("/nucleotides", status_code=status.HTTP_200_OK)
-async def get_nucleotide(number: int,
+@router.get("/nucleotides/{nucleotide_id}", status_code=status.HTTP_200_OK)
+async def get_nucleotide(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
                          credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         sequence["copy"] = sequence["copy"].replace("_", "")
+        nucleotide = sequence["copy"][nucleotide_id - 1]
         flags_completed = all_flags_collected(credentials)
-        nucleotide = sequence["copy"][number - 1]
-        if number < len(sequence["copy"]):
-            return JSONResponse(
-                {"message": f"Nucleotide at position {number} is {nucleotide}{flags_completed}"}
-            )
-        else:
-            return JSONResponse(
-                status_code=404,
-                content={
-                    "message": "Check the length of your sequence. It's not as long as you think."
-                }
-            )
+        return JSONResponse(
+            {"message": f"Nucleotide at position {nucleotide_id} is {nucleotide}{flags_completed}"}
+        )
 
 
 @router.post("/nucleotides/", status_code=status.HTTP_201_CREATED)
 async def add_nucleotide(nucleotide_to_add: str = Query(..., min_length=1, max_length=1, regex="[AUCG]"),
                          credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        sequence["copy"] = sequence["copy"] + nucleotide_to_add
+        sequence["copy"] = sequence["copy"].replace("_", "") + nucleotide_to_add
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.nucleocreator += 1
         nucleocreator_flag = f" ${{flag_nucleocreator_{technician.uuid}}}" if technician.nucleocreator >= 10 else ""
@@ -261,11 +258,11 @@ async def add_nucleotide(nucleotide_to_add: str = Query(..., min_length=1, max_l
 
 
 @router.patch("/nucleotides/{nucleotide_id}", status_code=status.HTTP_200_OK)
-async def nucleotide_replacement(nucleotide_id: int = Query(..., le=len(sequence["copy"])),
+async def nucleotide_replacement(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
                                  nucleotide_to_add: str = Query(..., min_length=1, max_length=1, regex="[AUCG]"),
                                  credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        sequence_list = list(sequence["copy"])
+        sequence_list = list(sequence["copy"].replace("_", ""))
         sequence_list[nucleotide_id - 1:nucleotide_id] = nucleotide_to_add
         sequence["copy"] = "".join(sequence_list)
         flags_completed = all_flags_collected(credentials)
@@ -287,17 +284,17 @@ async def sequence_replacement(nucleotide_to_add: str = Query(..., min_length=1,
 
 
 @router.delete("/nucleotides/{nucleotide_id}", status_code=status.HTTP_202_ACCEPTED)
-async def nucleotide_deletion(nucleotide_id: int = Query(..., le=len(sequence["copy"])),
+async def nucleotide_deletion(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
                               credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
-        sequence_list = list(sequence["copy"])
+        sequence_list = list(sequence["copy"].replace("_", ""))
         sequence_list[nucleotide_id - 1:nucleotide_id] = "_"
         sequence["copy"] = "".join(sequence_list)
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         eradicator_flag = ""
         if not sequence:
             eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}"
-            technician.eradicator = True
+            technician.eradicator += 1
         flags_completed = all_flags_collected(credentials)
         return {
             "message": "You are a master of restriction enzymes, you've cut out a part of RNA. "
@@ -306,15 +303,18 @@ async def nucleotide_deletion(nucleotide_id: int = Query(..., le=len(sequence["c
 
 
 @router.get("/translation")
-def translation(credentials: HTTPBasicCredentials = Depends(security)):
+async def translation(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         if is_winner(credentials):
-            if len(sequence) > 6:
+            if len(sequence["copy"]) > 6:
                 sequence["copy"] = sequence["copy"].replace("_", "")
                 protein = translation(sequence["copy"])
+                technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
+                technician.translation_completed()
                 return JSONResponse({
                     "message": f"We are safe {credentials.username}!!! "
-                               f"You constructed a peptide vaccine against SARS-CoV-2! God bless you!",
+                               f"You constructed a peptide vaccine against SARS-CoV-2! God bless you! "
+                               f"${{flag_proteomaster_{technician.uuid}}}",
                     "peptide_vaccine_sequence": protein
                 })
             else:
@@ -323,7 +323,7 @@ def translation(credentials: HTTPBasicCredentials = Depends(security)):
                 })
         else:
             return JSONResponse({
-                "message": "You haven't collected all flags yet. Back here once you have all of them."
+                "message": "You haven't collected all needed flags yet. Back here once you have all of them."
             })
 
 
@@ -346,9 +346,15 @@ def translation(seq):
              "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G",
              }
     protein = ""
+    seq_list = list(seq)
+    not_in_codon = len(seq) % 3
+    del seq_list[-not_in_codon:]
+    seq = "".join(seq_list)
     if len(seq) % 3 == 0:
         for i in range(0, len(seq), 3):
             codon = seq[i:i + 3]
             amino = table[codon]
+            if amino == "STOP":
+                break
             protein += amino
     return protein
