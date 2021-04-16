@@ -1,0 +1,11 @@
+HOW TO COLLECT FLAGS IN CHALLENGE 3:
+
+nucleocreator -> call POST /nucleotide endpoint (10 times)
+aminoacid_appender -> call POST /triplets endpoint (10 times)
+mutator -> call PATCH /triplets/{triplet_id} endpoint (10 times)
+reductor -> call DELETE /triplets/{triplet_id} endpoint (10 times)
+eradicator -> the flag is completed once the sequence is deleted (0 nucleotides, empty sample)
+architect -> call POST /triplets endpoint (50 times)
+observer -> call GET /sample_sequence endpoint (5 times)
+
+proteomaster -> all above flags collected + call GET /translation endpoint
