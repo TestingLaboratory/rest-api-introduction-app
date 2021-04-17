@@ -16,8 +16,10 @@ class Resource:
     locked: bool
     purged: bool
 
-    def __init__(self, resource_type: str, message: str, amount: int = 1, linked_to: Optional[int] = None,
-                 locked: bool = False, purged: bool = False):
+    # def __init__(self, resource_type: str, message: str, amount: int = 1, linked_to: Optional[int] = None,
+    #              locked: bool = False, purged: bool = False):
+    def __init__(self, resource_type: str, message: str, amount: int, linked_to: Optional[int],
+                 locked: bool, purged: bool):
         self.resource_type = resource_type
         self.message = message
         self.amount = amount
@@ -28,7 +30,7 @@ class Resource:
 
 class ResourcesCollection:
     def __init__(self):
-        self.resources: Dict[User, List[Resource]] = {}
+        self.resources: Dict[User, Dict[int, Resource]] = {}
 
 
 class UserRegistration(BaseModel):

@@ -33,7 +33,8 @@ from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_5.model import Resource, ResourcesCollection, UserRegistration, User
 
-router = APIRouter(prefix="/challenge/5")
+challenge_tag = "Challenge - The METHOD-ical Collector"
+router = APIRouter(prefix="/challenge/methodical")
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -69,30 +70,36 @@ def has_credentials(credentials: HTTPBasicCredentials):
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
-def register(user_registration: UserRegistration):
+async def register(user_registration: UserRegistration):
     user = User(user_registration.username, user_registration.password)
     if user in RESOURCES.resources.keys():
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail="You are already registered for the hunt!!!")
     else:
-        RESOURCES.resources.update({user: [Resource(resource_type="Golden",
-                                                    message="Advised to not be meddled with!")]})
+        RESOURCES.resources.update({user: {1: Resource(resource_type="Golden",
+                                                       message="Advised to not be meddled with!",
+                                                       amount=1,
+                                                       linked_to=None,
+                                                       locked=False,
+                                                       purged=False)
+                                           }
+                                    })
         return JSONResponse(content={"message": f"User {user.username} successfully registered"
                                                 f"User's unique identification number is: {user.uuid}"})
 
 
-@router.get("/resource", status_code=status.HTTP_200_OK)
+@router.get("/resource/all", status_code=status.HTTP_200_OK)
 async def get_resources(credentials: HTTPBasicCredentials = Depends(security)):
     if user := has_credentials(credentials):
         return JSONResponse(
             media_type="application/json",
             headers={"Explore": "Postman methods"},
             content={index: resource.__dict__ for index, resource in
-                     enumerate(RESOURCES.resources.get(user))}
+                     RESOURCES.resources.get(user).items()}
         )
 
 
-method_actions: Dict[str, callable] = {
+all_methods = {
     "GET": "",
     "POST": "",
     "PUT": "",
@@ -111,33 +118,33 @@ method_actions: Dict[str, callable] = {
 }
 
 
-@router.api_route(path="/resource/{resource_id}", methods=list(method_actions.keys()), include_in_schema=False)
+# TODO finish this function
+@router.api_route(path="/resource/{resource_id}", methods=list(all_methods.keys()), include_in_schema=False)
 async def lock_resource(resource_id: int, request: Request, credentials: HTTPBasicCredentials = Depends(security)):
     if user := has_credentials(credentials):
         try:
-            resource = RESOURCES.resources.get(user)[resource_id]
-            return JSONResponse(
-                content=resource.__dict__
-                #     content={"LOCKED": " by user"}
-            )
-        except IndexError:
+            if request.method == "GET":
+                return RESOURCES.resources[user][resource_id]
+            elif request.method == "POST":
+                if resource_id in RESOURCES.resources[user].keys():
+                    payload = await request.json()
+                    RESOURCES.resources[user][resource_id] = Resource(**payload)
+                else:
+                    pass #TODO return already created
+            elif request.method == "PUT":
+                payload = await request.json()
+                RESOURCES.resources[user][resource_id] = Resource(**payload)
+            elif request.method == "PATCH":
+                for name, value in request.body().__dict__:
+                    RESOURCES.resources[user][resource_id].__setattr__(name, value)
+            # resource = RESOURCES.resources.get(user)[resource_id]
+            # result = method_actions.get(request.method)()
+            # return result
+
+        except KeyError:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                                 detail=f"${{flag_whatcha_gettin?_{user.uuid}}}")
-            # return JSONResponse(
-            #     status_code=status.HTTP_404_NOT_FOUND,
-            #     content={"message": f"${{flag_whatcha_gettin?_{user.uuid}}}"}
-            # )
-
-# @router.post("/resource", status_code=status.HTTP_201_CREATED)
-# async def get_resource():
-#     pass
-#
-#
-# @router.put()
-# async def get_resource():
-#     pass
-#
-#
-# @router.patch()
-# async def get_resource():
-#     pass
+        except Exception as e:
+            print(e)
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"{e=}")

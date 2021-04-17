@@ -9,9 +9,10 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 from starlette import status
 from starlette.responses import JSONResponse
 
-from rest_introduction_app.api.challenges.challenge_4.model import UserRegistration, User, to_base64, rot13, HQMessage
-
-router = APIRouter(prefix="/challenge/4")
+from rest_introduction_app.api.challenges.challenge_4.model import UserRegistration, User, to_base64, rot13, HQMessage, \
+    un_rot13, un_base64
+challenge_tag = "Challenge - Cryptography agency that just loooooooves acronyms."
+router = APIRouter(prefix="/challenge/acronym_agency")
 security = HTTPBasic()
 
 
@@ -160,4 +161,25 @@ async def final_message_post(user_uuid: str, hq_message: HQMessage,
 
         return JSONResponse(
             content=content
+        )
+
+
+@router.get("{user_uuid}/crypto_engine", status_code=status.HTTP_200_OK,
+            dependencies=[Depends(has_access), Depends(has_credentials)])
+async def crypto_engine(user_uuid: str, method: str, message: str):
+    methods = {
+        "rot13": lambda text: rot13(text),
+        "un_rot13": lambda text: un_rot13(text),
+        "to_base64": lambda text: to_base64(text),
+        "un_base64": lambda text: un_base64(text),
+
+    }
+    try:
+        return JSONResponse(
+            content=methods[method](message)
+        )
+    except (Exception or KeyError) as e:
+        return JSONResponse(
+            content={"message": "Wrong data to cipher or decipher",
+                     "flag": f"${{flag_blind_testing_huh?_{user_uuid}}}"}
         )

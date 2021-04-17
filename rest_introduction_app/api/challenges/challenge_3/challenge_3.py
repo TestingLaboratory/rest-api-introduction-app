@@ -24,7 +24,9 @@ from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_3.model import TechnicianCheckIn, LabTechnician
 
-router = APIRouter(prefix="/challenge/3")
+challenge_tag = "Challenge - Virology: the Genetic Research."
+challenge_prefix = "/challenge/genetics"
+router = APIRouter(prefix=challenge_prefix)
 security = HTTPBasic()
 
 sequence = {
@@ -303,7 +305,7 @@ async def nucleotide_deletion(nucleotide_id: int = Path(..., ge=1, le=len(sequen
 
 
 @router.get("/translation")
-async def translation(credentials: HTTPBasicCredentials = Depends(security)):
+async def translate_to_obtain_protein(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         if is_winner(credentials):
             if len(sequence["copy"]) > 6:

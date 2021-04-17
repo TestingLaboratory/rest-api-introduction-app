@@ -81,11 +81,48 @@ async def get_people_params(first_name=None, last_name=None):
         )
 
 
-@router.post("/created")
-async def post_response_201(request: Pong):
-    return post_response(201, request)
+# @router.post("/some_resource/")
+# async def post_response_201(request: Pong):
+#     return post_response(201, request)
+#
+#
+# @router.put("/some_resource")
+# async def put_response_202(request: Pong):
+#     return put_response(202, request)
+
+@router.post("/human/")
+async def post_response_201(body: dict):
+    # return post_response(201, request)
+    _people.append(body)
+    return JSONResponse(content={
+        "message": f"Human {_people[-1]} created at index {_people.index(_people[-1])}"
+    },
+        status_code=status.HTTP_201_CREATED)
 
 
-@router.put("/created")
-async def put_response_201(request: Pong):
-    return put_response(201, request)
+@router.put("/human/{human_id}")
+async def put_response_202(body: dict,human_id: int):
+    try:
+        _people[human_id] = body
+        return JSONResponse(content={
+            "message": f"Human at index {human_id} modified as follows",
+            "human": _people[human_id]},
+            status_code=status.HTTP_202_ACCEPTED)
+    except IndexError:
+        return JSONResponse(content={
+            "message": "Excuse me, whaaaat?!"},
+            status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@router.patch("/human/{human_id}")
+async def put_response_202(body: dict,human_id: int):
+    try:
+        _people[human_id].update(body)
+        return JSONResponse(content={
+            "message": f"Human at index {human_id} modified as follows",
+            "human": _people[human_id]},
+            status_code=status.HTTP_202_ACCEPTED)
+    except IndexError:
+        return JSONResponse(content={
+            "message": "Excuse me, whaaaat?!"},
+            status_code=status.HTTP_400_BAD_REQUEST)

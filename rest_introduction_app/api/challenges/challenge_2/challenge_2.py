@@ -8,8 +8,9 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
-
-router = APIRouter(prefix="/challenge/2")
+challenge_prefix = "/challenge/reactor"
+challenge_tag = "Challenge - RBMK Reactor test"
+router = APIRouter(prefix=challenge_prefix)
 
 commanders: List[Commander] = []
 reactors: List[ReactorCore] = []

@@ -91,7 +91,8 @@ def register(user_registration: UserRegistration):
     user = User(user_registration.username, user_registration.password)
     if user in USERS:
         status_code = status.HTTP_400_BAD_REQUEST
-        content = {"message": "You are already registered in the Primer Challenge!"}
+        content = {"message": "You are already registered in the Primer Challenge!",
+                   "flag": "${flag_im_still_here_captain}"}
     else:
         USERS.append(user)
         status_code = status.HTTP_201_CREATED
@@ -108,6 +109,7 @@ def login(user_registration: UserRegistration):
         response = JSONResponse(content=content, status_code=status.HTTP_202_ACCEPTED)
         response.set_cookie(key="session", value=f"${{{user.uuid}_may_the_4th_b_with_u}}")
     else:
-        content = {"message": f"Failed to login. Wrong username or password."}
+        content = {"message": f"Failed to login. Wrong username or password.",
+                   "flag": "${flag_naughty_aint_ya}"}
         response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
     return response
