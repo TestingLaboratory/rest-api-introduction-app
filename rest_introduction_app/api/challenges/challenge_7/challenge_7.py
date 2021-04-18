@@ -6,3 +6,7 @@ Diatlov Pass
 (restart endpoint needed!)
 - you have to set up a tent and go to sleep to get your flag
 """
+from fastapi import APIRouter
+
+challenge_tag = "Challenge - Excursions on Diatlov Pass"
+router = APIRouter(prefix="/challenge/diatlov-pass")

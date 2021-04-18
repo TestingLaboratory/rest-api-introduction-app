@@ -5,17 +5,21 @@ Missions for:
 - Boron, Sand, helicopters (random helicopter crashes into crane) 422Bad request if helicopter is overloaded
 - Reactor building safety - percentages of Boron/Sand bags endpoint
 """
-#TODO finish
+# TODO finish
 from collections import namedtuple
 
 from fastapi import APIRouter, Request, status
+from pip._internal.utils.deprecation import deprecated
 from starlette.responses import JSONResponse
 import uuid
 
 from rest_introduction_app.api.challenges.authorization import AUTH_KEY, AUTH_KEY_VALUE, SECRET
 from rest_introduction_app.api.challenges.challenge_1.model import ChallengeSecret, PhoneCall, Comrade, Introduction
 
-router = APIRouter(prefix="/challenge/1")
+challenge_tag = "NOTREADY - Challenge - You have dealing with something " \
+                "that have never occurred on this planet before!"
+challenge_prefix = "/challenge/catastrophy"
+router = APIRouter(prefix=challenge_prefix)
 Mission = namedtuple("mission", ["person", "phone_number", "subject"])  # task, resoultion?
 
 comrades = []
@@ -24,7 +28,6 @@ chernobyl_mission = Mission("Anatolij Diatlov", "234-980-321", "The Test")
 cleanup_mission = Mission("Boris Scherbina", "267-220-126", "The Cleanup")
 western_robots_mission = Mission("Boris Yeltzin", "998-423-239", "The Joker")
 bio_robots_mission = Mission("Valerij Legasov", "223-201-209", "The Bio Robots")
-
 
 missions = [chernobyl_mission, cleanup_mission, western_robots_mission, bio_robots_mission]
 
@@ -84,7 +87,7 @@ async def get_all_comrades():
 
 
 @router.get("/list_food")
-async def authorize(request: Request):
+async def list_food(request: Request):
     if request.headers.get(AUTH_KEY) == AUTH_KEY_VALUE:
         return JSONResponse(
             content={
@@ -104,7 +107,7 @@ async def authorize(request: Request):
 
 # TODO finish it
 @router.post("/phone")
-async def authorize(phone: PhoneCall, request: Request):
+async def phone_call(phone: PhoneCall, request: Request):
     data = {}
 
     if request.headers.get(AUTH_KEY) == AUTH_KEY_VALUE:
