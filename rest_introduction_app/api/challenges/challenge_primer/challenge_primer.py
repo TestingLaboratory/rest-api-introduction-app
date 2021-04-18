@@ -3,7 +3,6 @@ This is the challenge primer to get testers to get accustomed with
 the idea of CTF concept using REST API call
 """
 import uuid
-from typing import List
 
 from dataclasses_json import dataclass_json
 from fastapi import APIRouter
@@ -12,6 +11,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 router = APIRouter(prefix="/challenge/primer")
+challenge_tag = "Challenge Primer - A warm-up for OUR testers!"
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
