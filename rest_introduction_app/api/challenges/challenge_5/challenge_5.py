@@ -120,7 +120,7 @@ all_methods = {
 
 # TODO finish this function
 @router.api_route(path="/resource/{resource_id}", methods=list(all_methods.keys()), include_in_schema=False)
-async def lock_resource(resource_id: int, request: Request, credentials: HTTPBasicCredentials = Depends(security)):
+async def collect_flag(resource_id: int, request: Request, credentials: HTTPBasicCredentials = Depends(security)):
     if user := has_credentials(credentials):
         try:
             if request.method == "GET":

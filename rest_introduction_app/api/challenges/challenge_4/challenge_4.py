@@ -11,6 +11,7 @@ from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_4.model import UserRegistration, User, to_base64, rot13, HQMessage, \
     un_rot13, un_base64
+
 challenge_tag = "Challenge - Cryptography agency that just loooooooves acronyms."
 router = APIRouter(prefix="/challenge/acronym_agency")
 security = HTTPBasic()
@@ -24,12 +25,12 @@ async def get_information():
     return {
         "message": f"You are an Agent in Bureau of People's Internet Network Deciphering Agency. "
                    f"You have received several messages that are currently stored in our system."
-                   f"Use /message/{{id}} to retrieve message. "
+                   f"Use /encrypted_message to retrieve message. "
                    f"Then use your knowledge and tools at your disposal (other endpoints) "
                    f"to decipher those messages. "
                    f"Hurry though, the timer is set to 2 hours. After that time the messages "
                    f"will be wiped out due to security reasons. "
-                   f"There are four flags waiting. "
+                   f"There are five flags waiting. "
                    f"Don't fail me. "
     }
 
@@ -49,7 +50,7 @@ def has_access(authorized_by: Optional[str] = Header(None)):
     if not authorized_by == AUTH_KEY:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail='Access Denied. ${flag_no_resource_for_ya}.',
+            detail='${flag_no_resource_for_ya}',
         )
 
 
@@ -102,6 +103,7 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
             flag = to_base64(flag)
             flag = rot13(flag)
             flag = to_base64(flag)
+            MESSAGES[user.uuid] = {}
             MESSAGES[user.uuid]["flag"] = flag
             message_for_hq = f"We serve the People's Internet Network Deciphering Agency"
             message_for_hq = to_base64(message_for_hq)
@@ -120,13 +122,22 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
             response = JSONResponse(
                 content={
                     "message": MESSAGES.get(user.uuid).get("flag"),
-                    "secret": f"POST {user.uuid}/headquarters with a decoded secret,"
+                    "securityInformation": f"Codename {user.uuid}! You will see this message only once!",
+                    "secret": "POST {unique identification number}/headquarters with a decoded secret, "
                               f"but first GET the secret from the /box"
                 }
             )
             response.set_cookie("message", "UBURUBUBURUBUB")
             response.set_cookie("secret", "UBUBUBURURURUBUBBURUB")
             return response
+        else:
+            response = JSONResponse(
+                status_code=status.HTTP_404_NOT_FOUND,
+                content={
+                    "message": "I told you. ONLY ONCE!"
+                }
+            )
+            response.set_cookie("flag", "${flag_there_can_be_only_one}")
 
 
 @router.get("/box", status_code=status.HTTP_200_OK,
@@ -151,13 +162,13 @@ async def final_message_post(user_uuid: str, hq_message: HQMessage,
                              credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         content = {
-            "message": f""
+            "message": f"From Russia, With Love"
         }
 
         if hq_message.message == f"We serve the People's Internet Network Deciphering Agency":
-            content["message"] = f"${{flag_you_know_how_acronyms_work_right?_{user_uuid}}}"
+            content["flag"] = f"${{flag_you_know_how_acronyms_work_right?_{user_uuid}}}"
         else:
-            content["message"] = f"${{not_yet_agent_{user_uuid}}}"
+            content["flag"] = f"${{flag_not_yet_agent_{user_uuid}}}"
 
         return JSONResponse(
             content=content
@@ -165,8 +176,16 @@ async def final_message_post(user_uuid: str, hq_message: HQMessage,
 
 
 @router.get("{user_uuid}/crypto_engine", status_code=status.HTTP_200_OK,
-            dependencies=[Depends(has_access), Depends(has_credentials)])
-async def crypto_engine(user_uuid: str, method: str, message: str):
+            dependencies=[Depends(has_access)])
+async def crypto_engine(user_uuid: str, method: str, message: str,
+                        credentials: HTTPBasicCredentials = Depends(security)):
+    """
+
+    :param user_uuid:
+    :param method: rot13, un_rot13, to_base64, un_base64
+    :param message: text to perform string manipulation on
+    :return:
+    """
     methods = {
         "rot13": lambda text: rot13(text),
         "un_rot13": lambda text: un_rot13(text),
@@ -174,12 +193,13 @@ async def crypto_engine(user_uuid: str, method: str, message: str):
         "un_base64": lambda text: un_base64(text),
 
     }
-    try:
-        return JSONResponse(
-            content=methods[method](message)
-        )
-    except (Exception or KeyError) as e:
-        return JSONResponse(
-            content={"message": "Wrong data to cipher or decipher",
-                     "flag": f"${{flag_blind_testing_huh?_{user_uuid}}}"}
-        )
+    if has_credentials(credentials):
+        try:
+            return JSONResponse(
+                content=methods[method](message)
+            )
+        except (Exception or KeyError) as e:
+            return JSONResponse(
+                content={"message": "Wrong data to cipher or decipher",
+                         "flag": f"${{flag_blind_testing_huh?_{user_uuid}}}"}
+            )

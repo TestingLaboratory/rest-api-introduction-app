@@ -1,4 +1,4 @@
-#TODO challenge
+#TODO move to basics
 """
 Wheel of fortune
 

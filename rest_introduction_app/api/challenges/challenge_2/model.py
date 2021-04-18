@@ -47,6 +47,9 @@ class ReactorCore:
             self.__fuel_rods[randint(0, __max_fuel_rods - 1)] = ""
         self.__state = 'Operational'
 
+    def __eq__(self, other):
+        return self.__uuid == other.uuid
+
     @property
     def uuid(self):
         return self.__uuid
@@ -107,7 +110,7 @@ class ReactorCore:
         try:
             if self.__control_rods[index] == "control_rod":
                 return f"Control rod at {index} already in place!"
-            self.__control_rods[index] = ""
+            self.__control_rods[index] = "control_rod"
             self.__calculate_state()
             if self.__state == "Operational":
                 self.__power -= 30
@@ -120,7 +123,7 @@ class ReactorCore:
             return f"No such Control Rod with number >>{index}<<!"
 
     def press_az_5(self):
-        self.__control_rods = map(lambda x: "control_rod", self.__control_rods)
+        self.__control_rods = list(map(lambda x: "control_rod", self.__control_rods))
         if self.__state == "Heavily Xenon-135 poisoned!" \
                 and self.__power > 1500:
             self.__power = 30000

@@ -92,16 +92,15 @@ async def get_people_params(first_name=None, last_name=None):
 
 @router.post("/human/")
 async def post_response_201(body: dict):
-    # return post_response(201, request)
     _people.append(body)
     return JSONResponse(content={
-        "message": f"Human {_people[-1]} created at index {_people.index(_people[-1])}"
+        "message": f"Human {_people[-1]} created at index {len(_people)-1}"
     },
         status_code=status.HTTP_201_CREATED)
 
 
 @router.put("/human/{human_id}")
-async def put_response_202(body: dict,human_id: int):
+async def put_response_202(body: dict, human_id: int):
     try:
         _people[human_id] = body
         return JSONResponse(content={
@@ -111,11 +110,11 @@ async def put_response_202(body: dict,human_id: int):
     except IndexError:
         return JSONResponse(content={
             "message": "Excuse me, whaaaat?!"},
-            status_code=status.HTTP_400_BAD_REQUEST)
+            status_code=status.HTTP_404_NOT_FOUND)
 
 
 @router.patch("/human/{human_id}")
-async def put_response_202(body: dict,human_id: int):
+async def patch_human(body: dict, human_id: int):
     try:
         _people[human_id].update(body)
         return JSONResponse(content={
@@ -125,4 +124,18 @@ async def put_response_202(body: dict,human_id: int):
     except IndexError:
         return JSONResponse(content={
             "message": "Excuse me, whaaaat?!"},
-            status_code=status.HTTP_400_BAD_REQUEST)
+            status_code=status.HTTP_404_NOT_FOUND)
+
+
+@router.delete("/human/{human_id}")
+async def delete_human(human_id: int):
+    try:
+        _people[human_id] = None
+        return JSONResponse(content={
+            "message": f"Human at index {human_id} deleted.",
+            "human": _people[human_id]},
+            status_code=status.HTTP_202_ACCEPTED)
+    except IndexError:
+        return JSONResponse(content={
+            "message": "Excuse me, whaaaat?!"},
+            status_code=status.HTTP_404_NOT_FOUND)

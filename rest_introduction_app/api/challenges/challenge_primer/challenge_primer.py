@@ -107,7 +107,7 @@ def login(user_registration: UserRegistration):
     if user in USERS:
         content = {"message": f"Welcome, {user.username}, in the Primer!"}
         response = JSONResponse(content=content, status_code=status.HTTP_202_ACCEPTED)
-        response.set_cookie(key="session", value=f"${{{user.uuid}_may_the_4th_b_with_u}}")
+        response.set_cookie(key="session", value=f"${{flag_{user.uuid}_may_the_4th_b_with_u}}")
     else:
         content = {"message": f"Failed to login. Wrong username or password.",
                    "flag": "${flag_naughty_aint_ya}"}
