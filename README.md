@@ -10,6 +10,6 @@ example usage:
 Open project the main directory and run **docker-compose.yml**:
 `docker-compose build`
 
-Containers should be build with application and service should run on **localhost**  with port **9000**. 
+Containers should be build with application and service should run on **localhost**  with port **8080**. 
 
 If you're using **PyCharm Docker Plugin** just click on two green arrows near tag **services**.
