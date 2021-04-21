@@ -1,20 +1,3 @@
-# TODO challenge
-# TODO Paweł Muzyka - genetyka
-## challenge 3
-## genom z tripletami
-# tym razem basic auth
-# endpointy
-# GET /rna filtruje wszystkie ustawione na none lub "" i buduje białko na podstawie łańcucha nukleotydów
-# GET/PUT/PATCH/POST/DELETE triplets/{number}
-# GET/PUT/PATCH/POST/DELETE nucleotides/{number}
-# flagi - nucleocreator - po 10 postach nowych nukleotydów DONE
-# flagi - aminoacid_appender - po 10 postach nowych tripletów DONE
-# flaga - mutator - po 10 patchach w tripletach DONE
-# flaga - reduktor - po 10 deletach w tripletach DONE
-# flaga eradicator - po usunięciu całego kodu RNA DONE
-# flaga architect po dodaniu 50 postów tripletów i zdobyciu flagi architekt DONE
-# flaga observer po 5 getach na /rna DONE
-import copy
 from typing import List
 
 from fastapi import APIRouter, Query, HTTPException, Depends, Path
@@ -315,8 +298,8 @@ async def translate_to_obtain_protein(credentials: HTTPBasicCredentials = Depend
                 technician.translation_completed()
                 return JSONResponse({
                     "message": f"We are safe {credentials.username}!!! "
-                               f"You constructed a peptide vaccine against SARS-CoV-2! God bless you! "
-                               f"${{flag_proteomaster_{technician.uuid}}}",
+                               f"You constructed a peptide vaccine against SARS-CoV-2! God bless you!",
+                    "flag": f"${{flag_proteomaster_{technician.uuid}}}",
                     "peptide_vaccine_sequence": protein
                 })
             else:

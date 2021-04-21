@@ -36,7 +36,7 @@ async def get_people():
     Endpoint to get all people
     :return:
     """
-    return _people
+    return {index: human for index, human in enumerate(_people)}
 
 
 @router.get("/get_all_people_sliced")
@@ -92,6 +92,9 @@ async def get_people_params(first_name=None, last_name=None):
 
 @router.post("/human/")
 async def post_response_201(body: dict):
+    """
+    Body should have at least first_name, and last_name as keys in json in body    :param body:
+    """
     _people.append(body)
     return JSONResponse(content={
         "message": f"Human {_people[-1]} created at index {len(_people)-1}"
@@ -101,6 +104,9 @@ async def post_response_201(body: dict):
 
 @router.put("/human/{human_id}")
 async def put_response_202(body: dict, human_id: int):
+    """
+    Body should have at least first_name, and last_name as keys in json in body
+    """
     try:
         _people[human_id] = body
         return JSONResponse(content={
@@ -115,6 +121,9 @@ async def put_response_202(body: dict, human_id: int):
 
 @router.patch("/human/{human_id}")
 async def patch_human(body: dict, human_id: int):
+    """
+    Body should have at least first_name, and last_name as keys in json in body
+    """
     try:
         _people[human_id].update(body)
         return JSONResponse(content={

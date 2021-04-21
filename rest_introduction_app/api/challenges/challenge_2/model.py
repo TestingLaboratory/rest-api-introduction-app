@@ -42,11 +42,11 @@ class ReactorCore:
         # initial control rods removal
         for _ in range(randint(__max_control_rods // 4, __max_control_rods // 2)):
             self.__control_rods[randint(0, __max_control_rods - 1)] = ""
-        # initial fuel rods removal #TODO check how well it plays
+        # initial fuel rods removal
         for _ in range(randint(__max_fuel_rods // 5, __max_fuel_rods // 3)):
             self.__fuel_rods[randint(0, __max_fuel_rods - 1)] = ""
         self.__state = 'Operational'
-
+        self.__description = "Rieaktor Bolszoj Moszcznosti Kanalnyj - 1000 MW"
     def __eq__(self, other):
         return self.__uuid == other.uuid
 
@@ -86,9 +86,11 @@ class ReactorCore:
             else:
                 self.__state = "BOOM!!!"
                 self.__power = 30_000
+                self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"
         except ZeroDivisionError:
             self.__state = "BOOM!!!"
             self.__power = 30_000
+            self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"
 
     def remove_control_rod_at(self, index: int) -> str:
         try:
@@ -128,6 +130,7 @@ class ReactorCore:
                 and self.__power > 1500:
             self.__power = 30000
             self.__state = "BOOM!!!"
+            self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"
         return self.__state
 
     def add_fuel_rod_at(self, index: int) -> str:
@@ -161,17 +164,3 @@ class ReactorCore:
             return f"Removing fuel rod at {index}!"
         except IndexError:
             return f"No such Fuel Rod with number >>{index}<<!"
-
-
-if __name__ == '__main__':
-    commander = Commander("Sasha")
-    print(commander)
-    core = ReactorCore(commander.uuid)
-    # print(core.power)
-    # print(core.fuel_rods)
-    # print(core.control_rods)
-    # print(core.state)
-    for index in range(20):
-        core.remove_control_rod_at(index)
-        print(core.power)
-        print(core.state)
