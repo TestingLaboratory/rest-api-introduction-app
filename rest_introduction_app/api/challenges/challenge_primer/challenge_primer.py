@@ -20,13 +20,13 @@ async def get_information():
     Get this resource to obtain mission debrief
     """
     return {
-        "message": f"Oi! W'at can I do for ya?"
-                   f"In this primer for challenges you'll learn how to look for flags."
-                   f"Remember that this is not purely technical task"
-                   f"You'll role play and use your knowledge to find treasures your looking for."
-                   f"If you have any questions - ask."
-                   f"Try and found as many flags as possible."
-                   f"begin with shooting at /tryout."
+        "message": f"Oi! W'at can I do for ya? "
+                   f"In this primer for challenges you'll learn how to look for flags. "
+                   f"Remember that this is not purely technical task. "
+                   f"You'll role play and use your knowledge to find treasures your looking for. "
+                   f"If you have any questions - ask. "
+                   f"Try and found as many flags as possible.(Five, there are five.) "
+                   f"begin with shooting at /tryout. "
     }
 
 
@@ -64,7 +64,7 @@ async def flag_info(flag_id: int):
     data = flags.get(flag_id, {"flag": "Nope", "status": status.HTTP_404_NOT_FOUND})
     return JSONResponse(
         status_code=data["status"],
-        content=data["flag"]
+        content=data
     )
 
 

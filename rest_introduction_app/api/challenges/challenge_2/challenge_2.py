@@ -31,7 +31,7 @@ async def get_information():
                    f"Check in at the /desk to get your key to control room. "
                    f"Put in fuel rods or pull out control rods to raise the power. "
                    f"Put in control rods or pull out fuel rods to decrease the power. "
-                   f"There are 11 flags to find. "
+                   f"There are 12 flags to find. "
                    f"Good luck Commander. "
     }
 
@@ -160,7 +160,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
             return {
                 "sound": result,
                 "message": f"Do you taste metal?!",
-                "flag": "${{flag_dead_int_two_weeks_{commander.name}}}"
+                "flag": f"${{flag_dead_int_two_weeks_{commander.name}}}"
             }
         else:
             return {
@@ -210,7 +210,7 @@ async def analysis(key: str):
             return {
                 "message": f"{commander.name}! You have successfully completed the test!!! "
                            f"General Secretary awards you!",
-                "flag": f" ${{flag_plutonium_generator_{commander.name}}}!"
+                "flag": f" ${{flag_plutonium_generator_{commander.name}}}"
             }
         elif reactor.state != "BOOM!!!":
             return {
@@ -219,7 +219,7 @@ async def analysis(key: str):
             }
         else:
             return {
-                "message": f"Run and check the reactor core!!! /{{key}}/reactor_core"
+                "message": f"Run and check the reactor core!!! /{commander.uuid}/reactor_core"
             }
     else:
         return JSONResponse(

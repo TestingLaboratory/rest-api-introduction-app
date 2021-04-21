@@ -14,7 +14,7 @@ async def get_current_username(credentials: HTTPBasicCredentials = Depends(secur
     if not (correct_username and correct_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="A dzie mnie z tymi rencoma?!",
+            detail="A dzie mnie z tymi rencoma?! Protip: 'username:password' == 'SeniorSiarra:JurekKiler'",
             headers={"WWW-Authenticate": "Basic"},
         )
     return credentials.username
