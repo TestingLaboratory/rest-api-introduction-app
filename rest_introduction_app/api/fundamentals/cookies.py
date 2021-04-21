@@ -64,12 +64,18 @@ def create_cookie(user_registration: UserRegistration):
 
 @router.get("/for_logged_in_users_only")
 def create_cookie(request: Request):
-    session_key = request.cookies.get("session")
-    user = list(filter(lambda u: u.uuid in session_key, USERS))[0]
-    if user in USERS:
-        content = {"message": f"Observe this fully operational battle station, young {user.username}."}
-        response = JSONResponse(content=content, status_code=status.HTTP_200_OK)
-    else:
+    try:
+        session_key = request.cookies.get("session")
+        user = list(filter(lambda u: u.uuid in session_key, USERS))[0]
+        if user in USERS:
+            content = {"message": f"Observe this fully operational battle station, young {user.username}."}
+            response = JSONResponse(content=content, status_code=status.HTTP_200_OK)
+        else:
+            content = {"message": f"I find your lack of cookie disturbing..."}
+            response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
+    except:
         content = {"message": f"I find your lack of cookie disturbing..."}
         response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
+
     return response
+

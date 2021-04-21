@@ -44,3 +44,6 @@ def __response(status_code: int, method: str,
         status_code=status_code,
         content=content
     )
+
+
+THINGS = []

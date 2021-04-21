@@ -3,7 +3,6 @@ This is the challenge primer to get testers to get accustomed with
 the idea of CTF concept using REST API call
 """
 import uuid
-from typing import List
 
 from dataclasses_json import dataclass_json
 from fastapi import APIRouter
@@ -12,6 +11,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 router = APIRouter(prefix="/challenge/primer")
+challenge_tag = "Challenge Primer - A warm-up for OUR testers!"
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -91,7 +91,8 @@ def register(user_registration: UserRegistration):
     user = User(user_registration.username, user_registration.password)
     if user in USERS:
         status_code = status.HTTP_400_BAD_REQUEST
-        content = {"message": "You are already registered in the Primer Challenge!"}
+        content = {"message": "You are already registered in the Primer Challenge!",
+                   "flag": "${flag_im_still_here_captain}"}
     else:
         USERS.append(user)
         status_code = status.HTTP_201_CREATED
@@ -106,8 +107,9 @@ def login(user_registration: UserRegistration):
     if user in USERS:
         content = {"message": f"Welcome, {user.username}, in the Primer!"}
         response = JSONResponse(content=content, status_code=status.HTTP_202_ACCEPTED)
-        response.set_cookie(key="session", value=f"${{{user.uuid}_may_the_4th_b_with_u}}")
+        response.set_cookie(key="session", value=f"${{flag_{user.uuid}_may_the_4th_b_with_u}}")
     else:
-        content = {"message": f"Failed to login. Wrong username or password."}
+        content = {"message": f"Failed to login. Wrong username or password.",
+                   "flag": "${flag_naughty_aint_ya}"}
         response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
     return response
