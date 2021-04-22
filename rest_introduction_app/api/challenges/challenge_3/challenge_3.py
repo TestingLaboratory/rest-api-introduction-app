@@ -45,6 +45,16 @@ def has_credentials(credentials: HTTPBasicCredentials):
         return True
 
 
+def verify_triplet_id(triplet_id: int):
+    if not triplet_id <= int(len(sequence["copy"].replace("_", "")) / 3) or triplet_id <= 0:
+        raise HTTPException(status_code=422, detail="triplet_id is beyond the length of RNA")
+
+
+def verify_nucleotide_id(nucleotide_id: int):
+    if not nucleotide_id <= int(len(sequence["copy"].replace("_", ""))) or nucleotide_id <= 0:
+        raise HTTPException(status_code=422, detail="nucleotide_id is beyond the length of RNA")
+
+
 @router.get("/information", status_code=status.HTTP_200_OK)
 async def get_information():
     """
@@ -118,7 +128,7 @@ async def get_rna(credentials: HTTPBasicCredentials = Depends(security)):
         flags_completed = all_flags_collected(credentials)
         return {
             "sample": sequence["copy"],
-            "message": f"{observer_flag}{flags_completed}"
+            "message": f"{observer_flag} {flags_completed}"
         }
 
 
@@ -130,19 +140,21 @@ async def get_copy(credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         sequence["copy"] = sequence["isolated"]
         return JSONResponse({
-            "message": "The primary sequence has been copied to your sample. PCR reaction went completed 100% fidelity."
+            "message": "The primary sequence has been copied to your sample. PCR reaction completed"
+                       " with 100% fidelity."
         })
 
 
 @router.get("/triplets/{triplet_id}", status_code=status.HTTP_200_OK)
-async def get_triplet(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
+async def get_triplet(triplet_id: int,
                       credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_triplet_id(triplet_id)
         triplet_index = (triplet_id - 1) * 3
         triplet = sequence["copy"].replace("_", "")[triplet_index: triplet_index + 3]
         flags_completed = all_flags_collected(credentials)
         return {
-            "message": f"Triplet at position {triplet_id}: {triplet}{flags_completed}"
+            "message": f"Triplet at position {triplet_id}: {triplet} {flags_completed}"
         }
 
 
@@ -160,16 +172,17 @@ async def add_triplet(triplet_to_add: str = Query(..., min_length=3, max_length=
         flags_completed = all_flags_collected(credentials)
         return {
             "message": f"Bravo! You've elongated the RNA strand you molecular freak!"
-                       f"{aminoacid_appender_flag}{architect_appender_flag} "
+                       f"{aminoacid_appender_flag} {architect_appender_flag} "
                        f"To check it's sequence use GET /sample_sequence {flags_completed}"
         }
 
 
 @router.patch("/triplets/{triplet_id}", status_code=status.HTTP_200_OK)
-async def triplet_replacement(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
+async def triplet_replacement(triplet_id: int,
                               triplet_to_add: str = Query(..., min_length=3, max_length=3, regex="[AUCG]"),
                               credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_triplet_id(triplet_id)
         sequence_list = list(sequence["copy"].replace("_", ""))
         index = (triplet_id - 1) * 3
         sequence_list[index:index + 3] = list(triplet_to_add)
@@ -196,9 +209,10 @@ async def sequence_replacement(triplet_to_add: str = Query(..., min_length=3, ma
 
 
 @router.delete("/triplets/{triplet_id}", status_code=status.HTTP_202_ACCEPTED)
-async def triplet_deletion(triplet_id: int = Path(..., ge=1, le=int(len(sequence["copy"].replace("_", "")) / 3)),
+async def triplet_deletion(triplet_id: int,
                            credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_triplet_id(triplet_id)
         sequence_list = list(sequence["copy"].replace("_", ""))
         index = (triplet_id - 1) * 3
         sequence_list[index:index + 3] = ("_", "_", "_")
@@ -210,20 +224,21 @@ async def triplet_deletion(triplet_id: int = Path(..., ge=1, le=int(len(sequence
         flags_completed = all_flags_collected(credentials)
         return {
             "message": f"You are a master of restriction enzymes, you've cut out a part of RNA."
-                       f"{reductor_flag}{eradicator_flag} "
+                       f"{reductor_flag} {eradicator_flag} "
                        f"To check the sequence after the process use GET /sample_sequence {flags_completed}"
         }
 
 
 @router.get("/nucleotides/{nucleotide_id}", status_code=status.HTTP_200_OK)
-async def get_nucleotide(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
+async def get_nucleotide(nucleotide_id: int,
                          credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_nucleotide_id(nucleotide_id)
         sequence["copy"] = sequence["copy"].replace("_", "")
         nucleotide = sequence["copy"][nucleotide_id - 1]
         flags_completed = all_flags_collected(credentials)
         return JSONResponse(
-            {"message": f"Nucleotide at position {nucleotide_id} is {nucleotide}{flags_completed}"}
+            {"message": f"Nucleotide at position {nucleotide_id} is {nucleotide} {flags_completed}"}
         )
 
 
@@ -243,10 +258,11 @@ async def add_nucleotide(nucleotide_to_add: str = Query(..., min_length=1, max_l
 
 
 @router.patch("/nucleotides/{nucleotide_id}", status_code=status.HTTP_200_OK)
-async def nucleotide_replacement(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
+async def nucleotide_replacement(nucleotide_id: int,
                                  nucleotide_to_add: str = Query(..., min_length=1, max_length=1, regex="[AUCG]"),
                                  credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_nucleotide_id(nucleotide_id)
         sequence_list = list(sequence["copy"].replace("_", ""))
         sequence_list[nucleotide_id - 1:nucleotide_id] = nucleotide_to_add
         sequence["copy"] = "".join(sequence_list)
@@ -269,9 +285,10 @@ async def sequence_replacement(nucleotide_to_add: str = Query(..., min_length=1,
 
 
 @router.delete("/nucleotides/{nucleotide_id}", status_code=status.HTTP_202_ACCEPTED)
-async def nucleotide_deletion(nucleotide_id: int = Path(..., ge=1, le=len(sequence["copy"].replace("_", ""))),
+async def nucleotide_deletion(nucleotide_id: int,
                               credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
+        verify_nucleotide_id(nucleotide_id)
         sequence_list = list(sequence["copy"].replace("_", ""))
         sequence_list[nucleotide_id - 1:nucleotide_id] = "_"
         sequence["copy"] = "".join(sequence_list)
@@ -331,15 +348,11 @@ def translation(seq):
              "GGU": "G", "GGC": "G", "GGA": "G", "GGG": "G",
              }
     protein = ""
-    seq_list = list(seq)
-    not_in_codon = len(seq) % 3
-    del seq_list[-not_in_codon:]
-    seq = "".join(seq_list)
-    if len(seq) % 3 == 0:
-        for i in range(0, len(seq), 3):
-            codon = seq[i:i + 3]
-            amino = table[codon]
-            if amino == "STOP":
-                break
-            protein += amino
+    seq_list = [seq[i:i + 3] for i in range(0, len(seq), 3)]
+    triplets = [triplet for triplet in seq_list if len(triplet) == 3]
+    for codon in triplets:
+        amino = table[codon]
+        if amino == "STOP":
+            break
+        protein += amino
     return protein
