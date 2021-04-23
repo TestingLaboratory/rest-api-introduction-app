@@ -178,6 +178,7 @@ async def crypto_engine(user_uuid: str, method: str, message: str,
                         credentials: HTTPBasicCredentials = Depends(security)):
     """
 
+    :param credentials:
     :param user_uuid:
     :param method: rot13, un_rot13, to_base64, un_base64
     :param message: text to perform string manipulation on

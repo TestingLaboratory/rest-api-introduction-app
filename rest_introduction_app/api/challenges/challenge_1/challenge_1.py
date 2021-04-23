@@ -40,7 +40,8 @@ async def how_to_authorize():
     """
     return {
         "message": f"You have to use 'secret' key with value {SECRET} in order to proceed. "
-                   f"Use /authorize endpoint."
+                   f"Use /authorize endpoint.",
+        "CRITICAL": "Development in progress. Sorry, this challenge is not ready yet."
     }
 
 

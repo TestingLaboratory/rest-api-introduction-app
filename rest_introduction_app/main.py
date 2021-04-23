@@ -1,4 +1,8 @@
-import uvicorn
+"""
+-- For Development Purposes --
+Serves all all api challenges and training materials
+Look out for auth clashes and multiple cookies
+"""
 from fastapi import FastAPI
 
 from rest_introduction_app.api.api import api_router

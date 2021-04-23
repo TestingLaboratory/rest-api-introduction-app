@@ -5,7 +5,7 @@ from rest_introduction_app.api.challenges.challenge_2 import challenge_2
 from rest_introduction_app.api.challenges.challenge_3 import challenge_3
 from rest_introduction_app.api.challenges.challenge_4 import challenge_4
 from rest_introduction_app.api.challenges.challenge_5 import challenge_5
-from rest_introduction_app.api.challenges.challenge_7 import challenge_7
+from rest_introduction_app.api.challenges.challenge_6 import challenge_6
 from rest_introduction_app.api.challenges.challenge_primer import challenge_primer
 from rest_introduction_app.api.fundamentals import playing_with_headers, client_error, server_error, successful, \
     basic_authentication, serving_images, cookies, token_authentication
@@ -41,5 +41,5 @@ api_router.include_router(router=challenge_4.router,
                           tags=[challenge_4.challenge_tag])
 api_router.include_router(router=challenge_5.router,
                           tags=[challenge_5.challenge_tag])
-api_router.include_router(router=challenge_7.router,
-                          tags=[challenge_7.challenge_tag])
+api_router.include_router(router=challenge_6.router,
+                          tags=[challenge_6.challenge_tag])
