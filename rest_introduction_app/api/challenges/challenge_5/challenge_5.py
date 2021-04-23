@@ -50,7 +50,8 @@ async def get_information():
                    f"and retrieve as many flags as possible."
                    f"Make us proud! And remember to show off your collection!"
                    f"Remember to /register first"
-                   f"P.S. DO NOT DELETE /resource with id = 1!"
+                   f"P.S. DO NOT DELETE /resource with id = 1!",
+        "CRITICAL": "Development in progress. Sorry, this challenge is not ready yet."
     }
 
 

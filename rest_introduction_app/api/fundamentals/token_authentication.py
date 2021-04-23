@@ -73,6 +73,11 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 @router.post("/token")
 async def token_login(form_data: OAuth2PasswordRequestForm = Depends()):
+    """
+    Use:
+    username: johndoe password:secret to log in as active user
+    username: alice password:secret2 to log in as inactive user
+    """
     user_dict = fake_users_db.get(form_data.username)
     if not user_dict:
         raise HTTPException(status_code=400, detail="Incorrect username or password")

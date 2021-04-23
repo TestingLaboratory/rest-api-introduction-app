@@ -8,7 +8,7 @@ with open(f"{__location__}/sleeper_messages.txt") as file:
     announcements = (message for message in file.readlines())
 
 sleep(15)  # initial sleep for cunning purposes ;)
-sys.stdin.write('printf "\033c"')
+
 while True:
     try:
         sys.stdout.write(next(announcements))
