@@ -7,4 +7,7 @@ RUN pip3 install -r requirements.txt
 
 COPY rest_introduction_app /app/rest_introduction_app
 
-ENTRYPOINT ["uvicorn", "rest_introduction_app.main:app", "--host", "0.0.0.0", "--port", "8080"]
+COPY shell_scripts /app/shell_scripts
+RUN chmod -R +x ./shell_scripts
+
+ENTRYPOINT ["/bin/sh", "./shell_scripts/run_all.sh"]
