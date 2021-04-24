@@ -223,7 +223,7 @@ async def triplet_deletion(triplet_id: int,
         technician.reductor += 1
         if not sequence["copy"].replace("_", ""):
             technician.eradicator += 1
-        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if not sequence["copy"].replace("_", "") else ""
+        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if technician.eradicator >= 1 else ""
         reductor_flag = f" ${{flag_reductor_{technician.uuid}}}" if technician.reductor >= 10 else ""
         flags_completed = all_flags_collected(credentials)
         return {
@@ -299,7 +299,7 @@ async def nucleotide_deletion(nucleotide_id: int,
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         if not sequence:
             technician.eradicator += 1
-        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}"
+        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if technician.eradicator >= 1 else ""
         flags_completed = all_flags_collected(credentials)
         return {
             "message": "You are a master of restriction enzymes, you've cut out a part of RNA. "
