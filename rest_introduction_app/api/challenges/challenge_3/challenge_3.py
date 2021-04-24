@@ -164,15 +164,16 @@ async def add_triplet(triplet_to_add: str = Query(..., min_length=3, max_length=
     if has_credentials(credentials):
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.aminoacid_appender += 1
+        technician.architect += 1
         sequence["copy"] = sequence["copy"].replace("_", "") + triplet_to_add
         aminoacid_appender_flag = f" ${{flag_aminoacid_appender_{technician.uuid}}}" \
             if technician.aminoacid_appender >= 10 else ""
-        architect_appender_flag = f" ${{flag_aminoacid_appender_{technician.uuid}}}" \
-            if technician.aminoacid_appender >= 50 else ""
+        architect_flag = f" ${{flag_architect_{technician.uuid}}}" \
+            if technician.architect >= 50 else ""
         flags_completed = all_flags_collected(credentials)
         return {
             "message": f"Bravo! You've elongated the RNA strand you molecular freak!"
-                       f"{aminoacid_appender_flag} {architect_appender_flag} "
+                       f"{aminoacid_appender_flag} {architect_flag} "
                        f"To check it's sequence use GET /sample_sequence {flags_completed}"
         }
 
@@ -188,6 +189,7 @@ async def triplet_replacement(triplet_id: int,
         sequence_list[index:index + 3] = list(triplet_to_add)
         sequence["copy"] = "".join(sequence_list)
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
+        technician.mutator += 1
         mutator_flag = f" ${{flag_mutator_{technician.uuid}}}" if technician.mutator >= 10 else ""
         flags_completed = all_flags_collected(credentials)
         return {
@@ -219,7 +221,9 @@ async def triplet_deletion(triplet_id: int,
         sequence["copy"] = "".join(sequence_list)
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.reductor += 1
-        eradicator_flag = f" ${{flag_reductor_{technician.uuid}}}" if not sequence["copy"].replace("_", "") else ""
+        if not sequence["copy"].replace("_", ""):
+            technician.eradicator += 1
+        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if not sequence["copy"].replace("_", "") else ""
         reductor_flag = f" ${{flag_reductor_{technician.uuid}}}" if technician.reductor >= 10 else ""
         flags_completed = all_flags_collected(credentials)
         return {
@@ -293,10 +297,9 @@ async def nucleotide_deletion(nucleotide_id: int,
         sequence_list[nucleotide_id - 1:nucleotide_id] = "_"
         sequence["copy"] = "".join(sequence_list)
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
-        eradicator_flag = ""
         if not sequence:
-            eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}"
             technician.eradicator += 1
+        eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}"
         flags_completed = all_flags_collected(credentials)
         return {
             "message": "You are a master of restriction enzymes, you've cut out a part of RNA. "
