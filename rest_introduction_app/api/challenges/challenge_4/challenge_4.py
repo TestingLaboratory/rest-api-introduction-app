@@ -27,7 +27,7 @@ async def get_information():
                    f"to decipher those messages. "
                    f"Hurry though, the timer is set to 2 hours. After that time the messages "
                    f"will be wiped out due to security reasons. "
-                   f"There are five flags waiting. "
+                   f"There are six flags waiting. "
                    f"Don't fail me. "
     }
 
@@ -135,6 +135,7 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
                 }
             )
             response.set_cookie("flag", "${flag_there_can_be_only_one}")
+            return response
 
 
 @router.get("/box", status_code=status.HTTP_200_OK,
