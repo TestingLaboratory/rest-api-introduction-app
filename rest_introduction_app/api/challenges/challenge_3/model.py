@@ -41,7 +41,7 @@ class LabTechnician:
         self.achievements["aminoacid_appender"] = self.aminoacid_appender >= 10
         self.achievements["mutator"] = self.mutator >= 10
         self.achievements["reductor"] = self.reductor >= 10
-        self.achievements["eradicator"] = self.eradicator >= 10
+        self.achievements["eradicator"] = self.eradicator >= 1
         self.achievements["architect"] = self.architect >= 50
         self.achievements["observer"] = self.observer >= 5
 
