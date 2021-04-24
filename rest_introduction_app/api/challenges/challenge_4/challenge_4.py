@@ -124,8 +124,8 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
                               f"but first GET the secret from the /box"
                 }
             )
-            response.set_cookie("message", "UBURUBUBURUBUB")
-            response.set_cookie("secret", "UBUBUBURURURUBUBBURUB")
+            response.set_cookie("message", "UBURUBUBUBURUBUB")
+            response.set_cookie("secret", "UBUBUBURURURUBUBUBURUB")
             return response
         else:
             response = JSONResponse(
