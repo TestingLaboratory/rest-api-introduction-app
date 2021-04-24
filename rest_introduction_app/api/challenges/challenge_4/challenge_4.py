@@ -120,7 +120,7 @@ async def encrypted_message(credentials: HTTPBasicCredentials = Depends(security
                 content={
                     "message": MESSAGES.get(user.uuid).get("flag"),
                     "securityInformation": f"Codename {user.uuid}! You will see this message only once!",
-                    "secret": "POST {unique identification number}/headquarters with a decoded secret, "
+                    "secret": "POST /{unique identification number}/headquarters with a decoded secret, "
                               f"but first GET the secret from the /box"
                 }
             )
@@ -154,7 +154,7 @@ async def get_info_from_box(user_uuid: str, message_type: str,
             )
 
 
-@router.post("{user_uuid}/headquarters", status_code=status.HTTP_202_ACCEPTED,
+@router.post("/{user_uuid}/headquarters", status_code=status.HTTP_202_ACCEPTED,
              dependencies=[Depends(has_access)])
 async def final_message_post(user_uuid: str, hq_message: HQMessage,
                              credentials: HTTPBasicCredentials = Depends(security)):
@@ -173,7 +173,7 @@ async def final_message_post(user_uuid: str, hq_message: HQMessage,
         )
 
 
-@router.get("{user_uuid}/crypto_engine", status_code=status.HTTP_200_OK,
+@router.get("/{user_uuid}/crypto_engine", status_code=status.HTTP_200_OK,
             dependencies=[Depends(has_access)])
 async def crypto_engine(user_uuid: str, method: str, message: str,
                         credentials: HTTPBasicCredentials = Depends(security)):

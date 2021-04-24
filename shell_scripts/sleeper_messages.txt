@@ -15,4 +15,4 @@ You’ll never be as lazy as whoever named the fireplace.
 A cheese factory exploded in France. The brie is everywhere!
 What do sprinters eat before a race? Nothing, they fast!
 “Um.” —First horse that got ridden
-${flag_docker_log_inspector}
+\$\{flag_docker_log_inspector\}
