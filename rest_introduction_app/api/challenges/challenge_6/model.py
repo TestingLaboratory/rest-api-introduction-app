@@ -1,6 +1,7 @@
 import enum
 from dataclasses import dataclass
 
+from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 
@@ -34,6 +35,14 @@ class Storage:
     def add_item(self, item: Item):
         self.content.append(item)
 
+    def swap_item(self, item_to_replace, item_to_pack):
+        if item_to_replace in self.content:
+            itr_index = self.content.index(item_to_replace)
+            self.content[itr_index] = item_to_pack
+        else:
+            raise HTTPException(status_code=400,
+                                detail=f"Item '{item_to_replace}' not found in your inventory.")
+
 
 @dataclass
 class Hiker:
@@ -41,5 +50,9 @@ class Hiker:
     pocket: Storage
 
     def __init__(self):
+        self.backpack = Storage(5)
+        self.pocket = Storage(2)
+
+    def set_to_default(self):
         self.backpack = Storage(5)
         self.pocket = Storage(2)

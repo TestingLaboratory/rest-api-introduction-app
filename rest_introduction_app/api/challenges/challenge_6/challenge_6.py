@@ -7,6 +7,7 @@ Diatlov Pass
 - you have to set up a tent and go to sleep to get your flag
 """
 from fastapi import APIRouter, Depends
+from fastapi.params import Path
 from starlette import status
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
@@ -16,15 +17,6 @@ from rest_introduction_app.api.challenges.challenge_6.model import Hiker, Item
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
 hiker = Hiker()
-
-#TODO try to add dependency to check if storage is full
-
-# def check_capacity(storage: str):
-#     storages = {"backpack": hiker.backpack.is_full(),
-#                 "pocket": hiker.pocket.is_full()}
-#     if storages.get(storage):
-#         raise HTTPException(status_code=400,
-#                             detail=f"Your {storage} is full already.")
 
 
 # TODO fill in responses or delete them
@@ -48,6 +40,14 @@ async def information():
     return {
         "CRITICAL": "Development in progress. Sorry, this challenge is not ready yet."
     }
+
+
+@router.get("/restart", status_code=status.HTTP_200_OK)
+async def restart():
+    hiker.set_to_default()
+    return JSONResponse({
+        "message": "Game has been restarted."
+    })
 
 
 @router.get("/backpack_content", status_code=status.HTTP_200_OK)
@@ -88,3 +88,23 @@ async def add_to_pocket(item: Item):
     else:
         raise HTTPException(status_code=400,
                             detail=f"Your pocket is full already.")
+
+
+@router.patch("/swap_backpack_item/{item}", status_code=status.HTTP_201_CREATED)
+async def swap_item(item_to_replace: Item,
+                    item_to_pack: Item):
+    hiker.backpack.swap_item(item_to_replace, item_to_pack)
+    return JSONResponse({
+        "message": f"You've decided to take {item_to_pack.name} instead of {item_to_replace.name}. "
+                   f"Remember, all that matters now is to survive."
+    })
+
+
+@router.patch("/swap_pocket_item/{item}", status_code=status.HTTP_201_CREATED)
+async def swap_item(item_to_replace: Item,
+                    item_to_pack: Item):
+    hiker.pocket.swap_item(item_to_replace, item_to_pack)
+    return JSONResponse({
+        "message": f"You've decided to take {item_to_pack.name} instead of {item_to_replace.name}. "
+                   f"Remember, all that matters now is to survive."
+    })
