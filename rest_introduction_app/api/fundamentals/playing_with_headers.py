@@ -12,6 +12,7 @@ router = APIRouter()
 async def check_your_request_header(request: Request):
     """
     Try that on Swagger Docs. If should return status code 200.
+    Use header "apikey": "woohoo"
     """
 
     return get_response(200 if request.headers.get(API_KEY) == playing_with_headers_auth_dict.get(API_KEY) else 403,
