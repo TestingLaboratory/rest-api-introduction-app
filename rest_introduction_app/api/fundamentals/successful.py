@@ -65,9 +65,11 @@ async def get_people_params(first_name=None, last_name=None):
     """
     guys_and_gals = _people[:]
     if first_name:
-        guys_and_gals = list(filter(lambda someone: someone["first_name"].lower() == first_name.lower(), guys_and_gals))
+        guys_and_gals = list(filter(lambda someone: someone.get("first_name", "").lower() == first_name.lower(),
+                                    guys_and_gals))
     if last_name:
-        guys_and_gals = list(filter(lambda someone: someone["last_name"].lower() == last_name.lower(), guys_and_gals))
+        guys_and_gals = list(filter(lambda someone: someone.get("last_name", "").lower() == last_name.lower(),
+                                    guys_and_gals))
 
     if (first_name or last_name) and guys_and_gals:
         return JSONResponse(
@@ -130,7 +132,7 @@ async def patch_human(body: dict, human_id: int):
 @router.delete("/human/{human_id}")
 async def delete_human(human_id: int):
     try:
-        _people[human_id] = None
+        _people[human_id] = dict()
         return JSONResponse(content={
             "message": f"Human at index {human_id} deleted.",
             "human": _people[human_id]},
