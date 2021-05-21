@@ -29,6 +29,13 @@ cleanup_mission = Mission("Boris Scherbina", "267-220-126", "The Cleanup")
 western_robots_mission = Mission("Boris Yeltzin", "998-423-239", "The Joker")
 bio_robots_mission = Mission("Valerij Legasov", "223-201-209", "The Bio Robots")
 
+#todo
+# gejzery radioaktywnego betonu
+# flaga - in Soviet Russia the fire extinguishes you
+# flaga - in Soviet Russia the phonecall cancels you
+# just casually getting a tan near reactor 4 block
+# graphite flakes on strawberries leaves
+
 missions = [chernobyl_mission, cleanup_mission, western_robots_mission, bio_robots_mission]
 
 

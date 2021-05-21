@@ -22,16 +22,15 @@ hiker = Hiker()
 # TODO fill in responses or delete them
 item_responses = {
         "tent": "It is nice to have a piece of cloth over your head in the middle of dark woods...",
-        "knife": "Remember to sharpen it MacGyver.",
+        "knife": "Remember to sharpen it Comrade.",
         "torch": "",
         "jacket": "",
         "lighter": "",
         "compass": "",
         "thermos": "",
         "headlamp": "",
-        "powerbank": "",
-        "smartphone": "",
-        "bottled_water": ""
+        "bottled_water": "",
+        "food": []
     }
 
 
