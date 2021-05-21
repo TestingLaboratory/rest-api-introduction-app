@@ -6,9 +6,13 @@ Diatlov Pass
 (restart endpoint needed!)
 - you have to set up a tent and go to sleep to get your flag
 """
+<<<<<<< HEAD
 from typing import List
 
 from fastapi import APIRouter, Depends, Query
+=======
+from fastapi import APIRouter, Depends
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12
 from fastapi.params import Path
 from starlette import status
 from starlette.exceptions import HTTPException
@@ -18,6 +22,22 @@ from rest_introduction_app.api.challenges.challenge_6.model import Hiker, Item
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
+hiker = Hiker()
+
+
+# TODO fill in responses or delete them
+item_responses = {
+        "tent": "It is nice to have a piece of cloth over your head in the middle of dark woods...",
+        "knife": "Remember to sharpen it Comrade.",
+        "torch": "",
+        "jacket": "",
+        "lighter": "",
+        "compass": "",
+        "thermos": "",
+        "headlamp": "",
+        "bottled_water": "",
+        "food": []
+    }
 
 hiker = Hiker()
 
@@ -56,7 +76,11 @@ async def restart():
 
 @router.get("/backpack_content", status_code=status.HTTP_200_OK)
 async def backpack_content():
+<<<<<<< HEAD
     items = ",".join([item.name for item in hiker.backpack.content])
+=======
+    items = [item.name for item in hiker.backpack.content]
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12
     return JSONResponse({
         "backpack_content": f"{items}"
     })
@@ -64,7 +88,11 @@ async def backpack_content():
 
 @router.get("/pocket_content", status_code=status.HTTP_200_OK)
 async def pocket_content():
+<<<<<<< HEAD
     items = ",".join([item.name for item in hiker.pocket.content])
+=======
+    items = [item.name for item in hiker.pocket.content]
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12
     return JSONResponse({
         "pocket_content": f"{items}"
     })
@@ -81,7 +109,11 @@ async def add_to_backpack(item: Item):
         raise HTTPException(status_code=400,
                             detail=f"Your backpack is full already.")
 
+<<<<<<< HEAD
 
+=======
+# TODO add validation for pocket size items
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12
 @router.post("/add_to_pocket/{item}")
 async def add_to_pocket(item: Item):
     if not hiker.pocket.is_full():
@@ -100,7 +132,11 @@ async def swap_item(item_to_replace: Item,
     hiker.backpack.swap_item(item_to_replace, item_to_pack)
     return JSONResponse({
         "message": f"You've decided to take {item_to_pack.name} instead of {item_to_replace.name}. "
+<<<<<<< HEAD
                    f"Remember, all that matters is to survive."
+=======
+                   f"Remember, all that matters now is to survive."
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12
     })
 
 
@@ -110,6 +146,7 @@ async def swap_item(item_to_replace: Item,
     hiker.pocket.swap_item(item_to_replace, item_to_pack)
     return JSONResponse({
         "message": f"You've decided to take {item_to_pack.name} instead of {item_to_replace.name}. "
+<<<<<<< HEAD
                    f"Remember, all that matters is to survive."
     })
 
@@ -144,3 +181,7 @@ async def remove_from_pocket(item: Item):
     return JSONResponse(
         {"message": f"{item} has been removed from your pocket."}
     )
+=======
+                   f"Remember, all that matters now is to survive."
+    })
+>>>>>>> d89d654d25007b9ecd9a4bd324bc3e19c33eac12

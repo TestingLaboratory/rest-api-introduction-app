@@ -65,9 +65,11 @@ async def get_people_params(first_name=None, last_name=None):
     """
     guys_and_gals = _people[:]
     if first_name:
-        guys_and_gals = list(filter(lambda someone: someone["first_name"].lower() == first_name.lower(), guys_and_gals))
+        guys_and_gals = list(filter(lambda someone: someone.get("first_name", "").lower() == first_name.lower(),
+                                    guys_and_gals))
     if last_name:
-        guys_and_gals = list(filter(lambda someone: someone["last_name"].lower() == last_name.lower(), guys_and_gals))
+        guys_and_gals = list(filter(lambda someone: someone.get("last_name", "").lower() == last_name.lower(),
+                                    guys_and_gals))
 
     if (first_name or last_name) and guys_and_gals:
         return JSONResponse(
@@ -81,15 +83,6 @@ async def get_people_params(first_name=None, last_name=None):
         )
 
 
-# @router.post("/some_resource/")
-# async def post_response_201(request: Pong):
-#     return post_response(201, request)
-#
-#
-# @router.put("/some_resource")
-# async def put_response_202(request: Pong):
-#     return put_response(202, request)
-
 @router.post("/human/")
 async def post_response_201(body: dict):
     """
@@ -97,7 +90,7 @@ async def post_response_201(body: dict):
     """
     _people.append(body)
     return JSONResponse(content={
-        "message": f"Human {_people[-1]} created at index {len(_people)-1}"
+        "message": f"Human {_people[-1]} created at index {len(_people) - 1}"
     },
         status_code=status.HTTP_201_CREATED)
 
@@ -139,11 +132,27 @@ async def patch_human(body: dict, human_id: int):
 @router.delete("/human/{human_id}")
 async def delete_human(human_id: int):
     try:
-        _people[human_id] = None
+        _people[human_id] = dict()
         return JSONResponse(content={
             "message": f"Human at index {human_id} deleted.",
             "human": _people[human_id]},
             status_code=status.HTTP_202_ACCEPTED)
+    except IndexError:
+        return JSONResponse(content={
+            "message": "Excuse me, whaaaat?!"},
+            status_code=status.HTTP_404_NOT_FOUND)
+
+
+@router.get("/human/{human_id}")
+async def get_human(human_id: int):
+    """
+    Body should have at least first_name, and last_name as keys in json in body
+    """
+    try:
+        return JSONResponse(content={
+            "message": f"Human at index {human_id} looks as follows",
+            "human": _people[human_id]},
+            status_code=status.HTTP_200_OK)
     except IndexError:
         return JSONResponse(content={
             "message": "Excuse me, whaaaat?!"},
