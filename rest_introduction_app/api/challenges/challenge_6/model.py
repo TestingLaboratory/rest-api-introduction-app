@@ -1,10 +1,13 @@
 import enum
+import uuid
 from dataclasses import dataclass
 from typing import List
 
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
+
+pocket_items = ["map", "knife", "torch", "matches", "lighter", "compass"]
 
 
 class Item(str, enum.Enum):
@@ -20,6 +23,13 @@ class Item(str, enum.Enum):
     headlamp = "headlamp"
     bottled_water = "bottled water"
     winter_jacket = "winter_jacket"
+
+    def is_pocket_size(self):
+        if self in pocket_items:
+            return True
+        else:
+            raise HTTPException(status_code=400,
+                                detail=f"Are you trying to pack {self} into your pocket? Really...")
 
 
 @dataclass
@@ -61,11 +71,13 @@ class Storage:
             raise HTTPException(status_code=400,
                                 detail=f"Item '{item_to_replace}' not found in your inventory.")
 
+# TODO flags
 
 @dataclass
 class Hiker:
     backpack: Storage
     pocket: Storage
+    flags: list
 
     def __init__(self):
         self.backpack = Storage("backpack", 5)
@@ -74,4 +86,5 @@ class Hiker:
     def set_to_default(self):
         self.backpack = Storage("backpack", 5)
         self.pocket = Storage("pocket", 2)
+
 
