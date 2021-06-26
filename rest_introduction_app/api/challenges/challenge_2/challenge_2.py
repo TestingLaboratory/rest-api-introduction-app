@@ -160,7 +160,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
             return {
                 "sound": result,
                 "message": f"Do you taste metal?!",
-                "flag": f"${{flag_dead_int_two_weeks_{commander.name}}}"
+                "flag": f"${{flag_dead_in_two_weeks_{commander.name}}}"
             }
         else:
             return {
