@@ -130,7 +130,7 @@ async def place_control_rod(key: str, rod_number: int):
     if commander and reactor:
         result = reactor.add_control_rod_at(rod_number)
         commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.uuid}}}" if \
+        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -240,7 +240,7 @@ async def remove_fuel_rod(key: str, rod_number: int):
     if commander and reactor:
         result = reactor.remove_fuel_rod_at(rod_number)
         commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.uuid}}}" if \
+        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
             commander.fuel_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
