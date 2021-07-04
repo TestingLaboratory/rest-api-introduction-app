@@ -104,7 +104,8 @@ async def control_rod_delete(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.remove_control_rod_at(rod_number)
-        commander.control_rod_manipulation += 1
+        if "Removing control rod" in result:
+            commander.control_rod_manipulation += 1
         manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
@@ -131,7 +132,8 @@ async def place_control_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.add_control_rod_at(rod_number)
-        commander.control_rod_manipulation += 1
+        if "Adding control rod" in result:
+            commander.control_rod_manipulation += 1
         manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
@@ -241,7 +243,8 @@ async def remove_fuel_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.remove_fuel_rod_at(rod_number)
-        commander.fuel_rod_manipulation += 1
+        if "Removing fuel rod" in result:
+            commander.fuel_rod_manipulation += 1
         manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
             commander.fuel_rod_manipulation > 30 else None
         response = {
@@ -268,7 +271,8 @@ async def place_fuel_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.add_fuel_rod_at(rod_number)
-        commander.fuel_rod_manipulation += 1
+        if "Adding fuel rod" in result:
+            commander.fuel_rod_manipulation += 1
         manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
             commander.fuel_rod_manipulation > 30 else None
         response = {
