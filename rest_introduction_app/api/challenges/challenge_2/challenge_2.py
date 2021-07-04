@@ -8,6 +8,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
+from unidecode import unidecode
 
 challenge_prefix = "/challenge/reactor"
 challenge_tag = "Challenge - RBMK Reactor test"
@@ -41,8 +42,9 @@ async def check_in(commander_check_in: CommanderCheckIn):
     """
     Post your name to receive key to control room
     """
-    if commander_check_in.name not in [c.name for c in commanders]:
-        commander = Commander(commander_check_in.name)
+    name = unidecode(commander_check_in.name)
+    if name not in [c.name for c in commanders]:
+        commander = Commander(name)
         commanders.append(commander)
         reactors.append(ReactorCore(commander.uuid))
         content = {
@@ -60,7 +62,7 @@ async def check_in(commander_check_in: CommanderCheckIn):
         )
         response.set_cookie("secret_documentation",
                             "Reactor will blow up if it is poisoned, overpowered and you press AZ5"
-                            f"${{flag_keeper_of_secrets{commander.name}}}")
+                            f"${{flag_keeper_of_secrets_{commander.name}}}")
         return response
     else:
 
