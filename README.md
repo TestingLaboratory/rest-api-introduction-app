@@ -14,4 +14,11 @@ Then run `docker-compose up --build --force-recreate -d` to start the applicatio
 
 Containers should be build with application and service should run on **localhost**  with port **8080** and following ports for different examples and challenges 
 
+- 8080 - basics
+- 8081 - auth token
+- 8082 - Challenge Warmup
+- 8083 - Reactor Challenge
+- 8084 - CryptoCrypto Challenge
+- 8085 - Coronavirus Genetics Challenge
+
 If you're using **PyCharm Docker Plugin** just click on two green arrows near tag **services**.
