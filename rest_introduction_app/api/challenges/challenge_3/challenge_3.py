@@ -21,11 +21,12 @@ TECHNICIANS: List[LabTechnician] = []
 
 
 def all_flags_collected(credentials: HTTPBasicCredentials):
+    content = {"message": None}
     if is_winner(credentials):
-        return "CONGRATS! YOUR RNA IS READY TO TRANSLATE INTO PROTEIN! " \
-               "USE /translate ENDPOINT"
+        content['message'] = "CONGRATS! YOUR RNA IS READY TO TRANSLATE INTO PROTEIN! \n USE /translate ENDPOINT"
     else:
-        return ""
+        content['message'] = "Maybe watch Andromeda Strain movie for some reference..."
+    return JSONResponse(content=content)
 
 
 def is_winner(credentials: HTTPBasicCredentials):
@@ -75,14 +76,16 @@ async def get_information():
 @router.post("/register_as_technician")
 async def register(credentials: TechnicianCheckIn):
     lab_technician = LabTechnician(credentials.username, credentials.password)
+    content = {"message": None}
     if lab_technician in TECHNICIANS:
         status_code = status.HTTP_400_BAD_REQUEST
-        content = "You are already a member of COVID research team."
+        content["message"] = "You are already a member of COVID research team."
     else:
         TECHNICIANS.append(lab_technician)
         status_code = status.HTTP_201_CREATED
-        content = f"You have been registered {lab_technician.name}. " \
-                  f"Take your hazmat suit, and do not forget about procedures!"
+        content["message"] = f"You have been registered {lab_technician.name}."
+        f"Take your hazmat suit, and do not forget about procedures!"
+
     return JSONResponse(
         content=content,
         status_code=status_code
