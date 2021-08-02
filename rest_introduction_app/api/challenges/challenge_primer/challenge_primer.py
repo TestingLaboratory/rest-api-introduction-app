@@ -102,18 +102,19 @@ def register(user_registration: UserRegistration):
 
 
 @router.post("/login")
-def login(user_registration: UserRegistration, response: Response):
+def login(user_registration: UserRegistration):
     user = User(user_registration.username, user_registration.password)
+    cookie = None
     if user in USERS:
         content = {"message": f"Welcome, {user.username}, in the Primer!"}
-        # response = JSONResponse(content=content, status_code=status.HTTP_202_ACCEPTED)
-        response.status_code = status.HTTP_202_ACCEPTED
-        response.body = content
-        response.cookie = {"session" : f"${{flag_{user.uuid}_may_the_4th_b_with_u}}"}
+        status_code = status.HTTP_202_ACCEPTED
+        cookie = {"key": "session",
+                  "value": "${{flag_{user.uuid}_may_the_4th_b_with_u}}"}
     else:
         content = {"message": f"Failed to login. Wrong username or password.",
                    "flag": "${flag_naughty_aint_ya}"}
-        # response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
-        response.body = content
-        response.status_code = status.HTTP_401_UNAUTHORIZED
+        status_code = status.HTTP_401_UNAUTHORIZED
+    response = JSONResponse(content=content, status_code=status_code)
+    if cookie:
+        response.set_cookie(**cookie)
     return response
