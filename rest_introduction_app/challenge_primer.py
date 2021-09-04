@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI
 
 from rest_introduction_app.api.challenges.challenge_primer import challenge_primer
@@ -12,3 +13,6 @@ app = FastAPI(
 
 app.include_router(router=challenge_primer.router,
                    tags=[challenge_primer.challenge_tag])
+
+if __name__ == '__main__':
+    uvicorn.run(app, host="0.0.0.0", port=9012)

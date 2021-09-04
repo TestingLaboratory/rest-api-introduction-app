@@ -8,7 +8,7 @@ from dataclasses_json import dataclass_json
 from fastapi import APIRouter
 from pydantic.main import BaseModel
 from starlette import status
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 router = APIRouter(prefix="/challenge/primer")
 challenge_tag = "Challenge Primer - A warm-up for OUR testers!"
@@ -104,12 +104,17 @@ def register(user_registration: UserRegistration):
 @router.post("/login")
 def login(user_registration: UserRegistration):
     user = User(user_registration.username, user_registration.password)
+    cookie = None
     if user in USERS:
         content = {"message": f"Welcome, {user.username}, in the Primer!"}
-        response = JSONResponse(content=content, status_code=status.HTTP_202_ACCEPTED)
-        response.set_cookie(key="session", value=f"${{flag_{user.uuid}_may_the_4th_b_with_u}}")
+        status_code = status.HTTP_202_ACCEPTED
+        cookie = {"key": "session",
+                  "value": "${{flag_{user.uuid}_may_the_4th_b_with_u}}"}
     else:
         content = {"message": f"Failed to login. Wrong username or password.",
                    "flag": "${flag_naughty_aint_ya}"}
-        response = JSONResponse(content=content, status_code=status.HTTP_401_UNAUTHORIZED)
+        status_code = status.HTTP_401_UNAUTHORIZED
+    response = JSONResponse(content=content, status_code=status_code)
+    if cookie:
+        response.set_cookie(**cookie)
     return response

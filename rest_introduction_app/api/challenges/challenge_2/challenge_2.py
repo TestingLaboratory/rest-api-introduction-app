@@ -8,6 +8,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
+from unidecode import unidecode
 
 challenge_prefix = "/challenge/reactor"
 challenge_tag = "Challenge - RBMK Reactor test"
@@ -41,8 +42,9 @@ async def check_in(commander_check_in: CommanderCheckIn):
     """
     Post your name to receive key to control room
     """
-    if commander_check_in.name not in [c.name for c in commanders]:
-        commander = Commander(commander_check_in.name)
+    name = unidecode(commander_check_in.name)
+    if name not in [c.name for c in commanders]:
+        commander = Commander(name)
         commanders.append(commander)
         reactors.append(ReactorCore(commander.uuid))
         content = {
@@ -60,7 +62,7 @@ async def check_in(commander_check_in: CommanderCheckIn):
         )
         response.set_cookie("secret_documentation",
                             "Reactor will blow up if it is poisoned, overpowered and you press AZ5"
-                            f"${{flag_keeper_of_secrets{commander.name}}}")
+                            f"${{flag_keeper_of_secrets_{commander.name}}}")
         return response
     else:
 
@@ -102,7 +104,8 @@ async def control_rod_delete(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.remove_control_rod_at(rod_number)
-        commander.control_rod_manipulation += 1
+        if "Removing control rod" in result:
+            commander.control_rod_manipulation += 1
         manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
@@ -129,8 +132,9 @@ async def place_control_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.add_control_rod_at(rod_number)
-        commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.uuid}}}" if \
+        if "Adding control rod" in result:
+            commander.control_rod_manipulation += 1
+        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -160,7 +164,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
             return {
                 "sound": result,
                 "message": f"Do you taste metal?!",
-                "flag": f"${{flag_dead_int_two_weeks_{commander.name}}}"
+                "flag": f"${{flag_dead_in_two_weeks_{commander.name}}}"
             }
         else:
             return {
@@ -239,8 +243,9 @@ async def remove_fuel_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.remove_fuel_rod_at(rod_number)
-        commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.uuid}}}" if \
+        if "Removing fuel rod" in result:
+            commander.fuel_rod_manipulation += 1
+        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
             commander.fuel_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -266,7 +271,8 @@ async def place_fuel_rod(key: str, rod_number: int):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         result = reactor.add_fuel_rod_at(rod_number)
-        commander.fuel_rod_manipulation += 1
+        if "Adding fuel rod" in result:
+            commander.fuel_rod_manipulation += 1
         manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
             commander.fuel_rod_manipulation > 30 else None
         response = {

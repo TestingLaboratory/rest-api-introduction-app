@@ -47,6 +47,7 @@ class ReactorCore:
             self.__fuel_rods[randint(0, __max_fuel_rods - 1)] = ""
         self.__state = 'Operational'
         self.__description = "Rieaktor Bolszoj Moszcznosti Kanalnyj - 1000 MW"
+
     def __eq__(self, other):
         return self.__uuid == other.uuid
 
@@ -73,10 +74,9 @@ class ReactorCore:
 
     def __calculate_state(self):
         try:
-            # rods_ratio = len(self.__fuel_rods) / len(list(filter(lambda x: x != "", self.__control_rods)))
             rods_ratio = len(list(filter(lambda x: x != "", self.__fuel_rods)))\
                          / len(list(filter(lambda x: x != "", self.__control_rods)))
-            print(uuid, rods_ratio)
+            # print(self.uuid, rods_ratio)
             if rods_ratio < 10:
                 self.__state = "Operational"
             elif rods_ratio < 20:
