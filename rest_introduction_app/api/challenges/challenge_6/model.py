@@ -1,10 +1,11 @@
 import enum
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List
 
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
-from starlette.responses import JSONResponse
+
+pocket_items = ["map", "knife", "torch", "matches", "lighter", "compass"]
 
 
 class Item(str, enum.Enum):
@@ -19,19 +20,22 @@ class Item(str, enum.Enum):
     thermos = "thermos"
     headlamp = "headlamp"
     bottled_water = "bottled water"
-    winter_jacket = "winter_jacket"
+    winter_jacket = "winter jacket"
 
+
+class ItemModel(BaseModel):
+    item: Item
+
+
+class ReplaceItemModel(BaseModel):
+    item_to_unpack: Item
+    item_to_pack: Item
 
 @dataclass
 class Storage:
     storage_type: str
     max_item_number: int
-    content: list
-
-    def __init__(self, storage_type: str, max_item_number: int):
-        self.storage_type = storage_type
-        self.max_item_number = max_item_number
-        self.content = []
+    content: List = field(default_factory=lambda: [])
 
     def is_full(self):
         return len(self.content) >= self.max_item_number
@@ -61,17 +65,17 @@ class Storage:
             raise HTTPException(status_code=400,
                                 detail=f"Item '{item_to_replace}' not found in your inventory.")
 
+# TODO flags
 
 @dataclass
 class Hiker:
-    backpack: Storage
-    pocket: Storage
-
-    def __init__(self):
-        self.backpack = Storage("backpack", 5)
-        self.pocket = Storage("pocket", 2)
+    # flags: list
+    backpack: Storage = Storage("backpack", 5)
+    pocket: Storage = Storage("pocket", 2)
 
     def set_to_default(self):
         self.backpack = Storage("backpack", 5)
         self.pocket = Storage("pocket", 2)
 
+    def get_backpack_content(self):
+        return ",".join([item.name for item in self.backpack.content])
