@@ -57,7 +57,7 @@ class Storage:
             raise HTTPException(status_code=400,
                                 detail=f"You can only pack {self.max_item_number} items in your {self.storage_type}")
 
-    def swap_item(self, item_to_replace, item_to_pack):
+    def swap_item(self, item_to_replace: Item, item_to_pack: Item):
         if item_to_replace in self.content:
             itr_index = self.content.index(item_to_replace)
             self.content[itr_index] = item_to_pack
