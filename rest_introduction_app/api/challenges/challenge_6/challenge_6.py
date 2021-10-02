@@ -21,20 +21,19 @@ router = APIRouter(prefix="/challenge/diatlov-pass")
 
 hiker = Hiker()
 
-# TODO add validation for pocket size items
-# TODO fill in responses or delete them
 item_responses = {
         "map": "Probably a good choice... not to follow the voices in your head.",
         "tent": "It is nice to have a piece of cloth over your head in the middle of nowhere...",
         "knife": "Keep it sharp. You never know what you might need it for.",
         "torch": "Shed some light on the unknown course of events.",
         "camera": "Take pictures and preserve moments for yourself... or others.",
-        "lighter": "",
-        "matches": "",
+        "lighter": "Light, fire, heat? A lighter gives you all of them.",
+        "matches": "Starts up fast and goes out fast, like human destiny.",
         "compass": "Follow the map to reach the northern Ural.",
         "thermos": "Ahhh... a sip of hot tea reminds of home, doesn't it?",
         "headlamp": "Go straight ahead, clear the path with a stream of light.",
-        "bottled_water": "",
+        "bottled_water": "Remember - plastic bottle can decompose for up to 1000 years." +
+                "That's much longer than the decomposition of the human body.",
         "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
     }
 
@@ -84,15 +83,16 @@ async def add_to_backpack(body: ItemModel):
 
 @router.post("/add_to_pocket")
 async def add_to_pocket(body: ItemModel):
-    if body.item.is_pocket_size():
-        if not hiker.pocket.is_full():
-            hiker.pocket.add_item(body.item)
-            return JSONResponse({
-                "message": f"You've packed a {body.item.name}. {item_responses.get(body.item.name)}."
-            })
-        else:
-            raise HTTPException(status_code=400,
-                                detail=f"Your pocket is full already.")
+    if not body.is_pocket_size():
+        raise HTTPException(status_code=403,
+                            detail=f"Are you trying to put {body.item.name} into your pocket? Really...")
+    if hiker.pocket.is_full():
+        raise HTTPException(status_code=400,
+                            detail=f"Your pocket is full already.")
+    hiker.pocket.add_item(body.item)
+    return JSONResponse({
+        "message": f"You've packed a {body.item.name}. {item_responses.get(body.item.name)}."
+    })
 
 
 @router.patch("/swap_backpack_item", status_code=status.HTTP_201_CREATED)

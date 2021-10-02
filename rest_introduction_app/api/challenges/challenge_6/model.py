@@ -26,6 +26,9 @@ class Item(str, enum.Enum):
 class ItemModel(BaseModel):
     item: Item
 
+    def is_pocket_size(self):
+        return self.item in pocket_items
+
 
 class ReplaceItemModel(BaseModel):
     item_to_unpack: Item
