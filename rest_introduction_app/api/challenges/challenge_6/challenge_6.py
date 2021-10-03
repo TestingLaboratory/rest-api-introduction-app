@@ -14,7 +14,8 @@ from starlette import status
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
-from rest_introduction_app.api.challenges.challenge_6.model import Hiker, Item, ItemModel, ReplaceItemModel
+from rest_introduction_app.api.challenges.challenge_6.model import Hiker, Item, ItemModel, ReplaceItemModel, \
+    pocket_items
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
@@ -22,20 +23,20 @@ router = APIRouter(prefix="/challenge/diatlov-pass")
 hiker = Hiker()
 
 item_responses = {
-        "map": "Probably a good choice... not to follow the voices in your head.",
-        "tent": "It is nice to have a piece of cloth over your head in the middle of nowhere...",
-        "knife": "Keep it sharp. You never know what you might need it for.",
-        "torch": "Shed some light on the unknown course of events.",
-        "camera": "Take pictures and preserve moments for yourself... or others.",
-        "lighter": "Light, fire, heat? A lighter gives you all of them.",
-        "matches": "Starts up fast and goes out fast, like human destiny.",
-        "compass": "Follow the map to reach the northern Ural.",
-        "thermos": "Ahhh... a sip of hot tea reminds of home, doesn't it?",
-        "headlamp": "Go straight ahead, clear the path with a stream of light.",
-        "bottled_water": "Remember - plastic bottle can decompose for up to 1000 years." +
-                "That's much longer than the decomposition of the human body.",
-        "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
-    }
+    "map": "Probably a good choice... not to follow the voices in your head.",
+    "tent": "It is nice to have a piece of cloth over your head in the middle of nowhere...",
+    "knife": "Keep it sharp. You never know what you might need it for.",
+    "torch": "Shed some light on the unknown course of events.",
+    "camera": "Take pictures and preserve moments for yourself... or others.",
+    "lighter": "Light, fire, heat? A lighter gives you all of them.",
+    "matches": "Starts up fast and goes out fast, like human destiny.",
+    "compass": "Follow the map to reach the northern Ural.",
+    "thermos": "Ahhh... a sip of hot tea reminds of home, doesn't it?",
+    "headlamp": "Go straight ahead, clear the path with a stream of light.",
+    "bottled_water": "Remember - plastic bottle can decompose for up to 1000 years." +
+                     "That's much longer than the decomposition of the human body.",
+    "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
+}
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -127,6 +128,9 @@ async def pack_all_to_backpack(items: List[Item] = Query(...)):
 
 @router.put("/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
 async def pack_all_to_pocket(items: List[Item] = Query(...)):
+    if not all(item.name in pocket_items for item in items):
+        raise HTTPException(status_code=403,
+                            detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
     hiker.pocket.put_items(items)
     return JSONResponse(
         {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
