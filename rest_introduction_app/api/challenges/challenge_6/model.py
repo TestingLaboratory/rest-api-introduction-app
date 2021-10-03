@@ -72,9 +72,9 @@ class Storage:
 
 @dataclass
 class Hiker:
-    # flags: list
     backpack: Storage = Storage("backpack", 5)
     pocket: Storage = Storage("pocket", 2)
+    flags: List[str] = field(default_factory=lambda: [])
 
     def set_to_default(self):
         self.backpack = Storage("backpack", 5)
@@ -82,3 +82,11 @@ class Hiker:
 
     def get_backpack_content(self):
         return ",".join([item.name for item in self.backpack.content])
+
+    def is_item_packed(self, item: Item):
+        return item in self.backpack or item in self.pocket
+
+    # def verify_flags(self):
+
+#         iterate through items_to_win and add flags
+

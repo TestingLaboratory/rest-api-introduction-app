@@ -22,7 +22,7 @@ router = APIRouter(prefix="/challenge/diatlov-pass")
 
 hiker = Hiker()
 
-item_responses = {
+ITEM_RESPONSES = {
     "map": "Probably a good choice... not to follow the voices in your head.",
     "tent": "It is nice to have a piece of cloth over your head in the middle of nowhere...",
     "knife": "Keep it sharp. You never know what you might need it for.",
@@ -37,6 +37,8 @@ item_responses = {
                      "That's much longer than the decomposition of the human body.",
     "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
 }
+
+ITEMS_TO_WIN = ["map", "tent", "knife", "torch", "lighter", "compass", "winter jacket"]
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -75,7 +77,7 @@ async def add_to_backpack(body: ItemModel):
     if not hiker.backpack.is_full():
         hiker.backpack.add_item(body.item)
         return JSONResponse({
-            "message": f"You've packed a {body.item.name}. {item_responses.get(body.item.name)}."
+            "message": f"You've packed a {body.item.name}. {ITEM_RESPONSES.get(body.item.name)}."
         })
     else:
         raise HTTPException(status_code=400,
@@ -92,7 +94,7 @@ async def add_to_pocket(body: ItemModel):
                             detail=f"Your pocket is full already.")
     hiker.pocket.add_item(body.item)
     return JSONResponse({
-        "message": f"You've packed a {body.item.name}. {item_responses.get(body.item.name)}."
+        "message": f"You've packed a {body.item.name}. {ITEM_RESPONSES.get(body.item.name)}."
     })
 
 
@@ -137,7 +139,7 @@ async def pack_all_to_pocket(items: List[Item] = Query(...)):
     )
 
 
-@router.delete("/remove_from_backapack", status_code=status.HTTP_200_OK)
+@router.delete("/remove_from_backpack", status_code=status.HTTP_200_OK)
 async def remove_from_backpack(item: Item):
     hiker.backpack.remove_item(item)
     return JSONResponse(
