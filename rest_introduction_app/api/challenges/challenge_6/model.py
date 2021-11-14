@@ -1,14 +1,12 @@
-import enum
+from enum import Enum
 from dataclasses import dataclass, field
 from typing import List
 
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
 
-pocket_items = ["map", "knife", "torch", "matches", "lighter", "compass"]
 
-
-class Item(str, enum.Enum):
+class ItemName(Enum):
     map = "map"
     tent = "tent"
     knife = "knife"
@@ -23,16 +21,22 @@ class Item(str, enum.Enum):
     winter_jacket = "winter jacket"
 
 
-class ItemModel(BaseModel):
-    item: Item
+_POCKET_ITEM_NAMES = [ItemName.map, ItemName.knife, ItemName.torch,
+                      ItemName.matches, ItemName.lighter, ItemName.compass]
 
-    def is_pocket_size(self):
-        return self.item in pocket_items
+
+class Item(BaseModel):
+    name: ItemName
+
+
+def is_pocket_size(item: Item):
+    return item.name in _POCKET_ITEM_NAMES
 
 
 class ReplaceItemModel(BaseModel):
-    item_to_unpack: Item
-    item_to_pack: Item
+    item_to_unpack: ItemName
+    item_to_pack: ItemName
+
 
 @dataclass
 class Storage:
@@ -40,35 +44,6 @@ class Storage:
     max_item_number: int
     content: List = field(default_factory=lambda: [])
 
-    def is_full(self):
-        return len(self.content) >= self.max_item_number
-
-    def add_item(self, item: Item):
-        self.content.append(item)
-
-    def remove_item(self, item: Item):
-        if item in self.content:
-            self.content.remove(item)
-        else:
-            raise HTTPException(status_code=400,
-                                detail=f"Hmm, are you sure you've packed {item}?")
-
-    def put_items(self, items: List[Item]):
-        if len(items) <= self.max_item_number:
-            self.content = items
-        else:
-            raise HTTPException(status_code=400,
-                                detail=f"You can only pack {self.max_item_number} items in your {self.storage_type}")
-
-    def swap_item(self, item_to_replace: Item, item_to_pack: Item):
-        if item_to_replace in self.content:
-            itr_index = self.content.index(item_to_replace)
-            self.content[itr_index] = item_to_pack
-        else:
-            raise HTTPException(status_code=400,
-                                detail=f"Item '{item_to_replace}' not found in your inventory.")
-
-# TODO flags
 
 @dataclass
 class Hiker:
@@ -76,17 +51,57 @@ class Hiker:
     pocket: Storage = Storage("pocket", 2)
     flags: List[str] = field(default_factory=lambda: [])
 
-    def set_to_default(self):
-        self.backpack = Storage("backpack", 5)
-        self.pocket = Storage("pocket", 2)
+# Storage methods
 
-    def get_backpack_content(self):
-        return ",".join([item.name for item in self.backpack.content])
 
-    def is_item_packed(self, item: Item):
-        return item in self.backpack or item in self.pocket
+def is_full(storage: Storage):
+    return len(storage.content) >= storage.max_item_number
+
+
+def add_item(storage: Storage, item: ItemName):
+    storage.content.append(item)
+
+
+def remove_item(storage: Storage, item: ItemName):
+    if item in storage.content:
+        storage.content.remove(item)
+    else:
+        raise HTTPException(status_code=400,
+                            detail=f"Hmm, are you sure you've packed {item}?")
+
+
+def put_items(storage: Storage, items: List[ItemName]):
+    if len(items) <= storage.max_item_number:
+        storage.content = items
+    else:
+        raise HTTPException(status_code=400,
+                            detail=f"You can only pack {storage.max_item_number} items in your {storage.storage_type}")
+
+
+def swap_item(storage: Storage, item_to_replace: ItemName, item_to_pack: ItemName):
+    if item_to_replace in storage.content:
+        itr_index = storage.content.index(item_to_replace)
+        storage.content[itr_index] = item_to_pack
+    else:
+        raise HTTPException(status_code=400,
+                            detail=f"Item '{item_to_replace}' not found in your inventory.")
+
+
+# Hiker methods
+
+
+def set_to_default(hiker: Hiker):
+    hiker.backpack = Storage("backpack", 5)
+    hiker.pocket = Storage("pocket", 2)
+
+
+def get_backpack_content(hiker: Hiker):
+    return ",".join([item.name for item in hiker.backpack.content])
+
+
+def is_item_packed(hiker: Hiker, item: ItemName):
+    return item in hiker.backpack or item in hiker.pocket
 
     # def verify_flags(self):
 
 #         iterate through items_to_win and add flags
-

@@ -14,11 +14,12 @@ from starlette import status
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
-from rest_introduction_app.api.challenges.challenge_6.model import Hiker, Item, ItemModel, ReplaceItemModel, \
-    pocket_items
+from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
+    _POCKET_ITEM_NAMES
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
+# router.include_router()
 
 hiker = Hiker()
 
@@ -73,7 +74,7 @@ async def pocket_content():
 
 
 @router.post("/add_to_backpack")
-async def add_to_backpack(body: ItemModel):
+async def add_to_backpack(body: Item):
     if not hiker.backpack.is_full():
         hiker.backpack.add_item(body.item)
         return JSONResponse({
@@ -85,7 +86,7 @@ async def add_to_backpack(body: ItemModel):
 
 
 @router.post("/add_to_pocket")
-async def add_to_pocket(body: ItemModel):
+async def add_to_pocket(body: Item):
     if not body.is_pocket_size():
         raise HTTPException(status_code=403,
                             detail=f"Are you trying to put {body.item.name} into your pocket? Really...")
@@ -121,7 +122,7 @@ async def swap_item(body: ReplaceItemModel):
 
 
 @router.put("/pack_all_to_backpack", status_code=status.HTTP_201_CREATED)
-async def pack_all_to_backpack(items: List[Item] = Query(...)):
+async def pack_all_to_backpack(items: List[ItemName] = Query(...)):
     hiker.backpack.put_items(items)
     return JSONResponse(
         {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
@@ -129,8 +130,8 @@ async def pack_all_to_backpack(items: List[Item] = Query(...)):
 
 
 @router.put("/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
-async def pack_all_to_pocket(items: List[Item] = Query(...)):
-    if not all(item.name in pocket_items for item in items):
+async def pack_all_to_pocket(items: List[ItemName] = Query(...)):
+    if not all(item.name in _POCKET_ITEM_NAMES for item in items):
         raise HTTPException(status_code=403,
                             detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
     hiker.pocket.put_items(items)
@@ -140,7 +141,7 @@ async def pack_all_to_pocket(items: List[Item] = Query(...)):
 
 
 @router.delete("/remove_from_backpack", status_code=status.HTTP_200_OK)
-async def remove_from_backpack(item: Item):
+async def remove_from_backpack(item: ItemName):
     hiker.backpack.remove_item(item)
     return JSONResponse(
         {"message": f"{item} has been removed from your backpack."}
@@ -148,7 +149,7 @@ async def remove_from_backpack(item: Item):
 
 
 @router.delete("/remove_from_pocket", status_code=status.HTTP_200_OK)
-async def remove_from_pocket(item: Item):
+async def remove_from_pocket(item: ItemName):
     hiker.pocket.remove_item(item)
     return JSONResponse(
         {"message": f"{item} has been removed from your pocket."}
