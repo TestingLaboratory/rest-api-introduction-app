@@ -8,14 +8,13 @@ Diatlov Pass
 """
 from typing import List
 
-from fastapi import APIRouter, Depends, Query
-from fastapi.params import Path
+from fastapi import APIRouter, Query
 from starlette import status
 from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
-    _POCKET_ITEM_NAMES
+    _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
@@ -51,7 +50,7 @@ async def information():
 
 @router.get("/restart", status_code=status.HTTP_200_OK)
 async def restart():
-    hiker.set_to_default()
+    set_to_default(hiker)
     return JSONResponse({
         "message": "Game has been restarted."
     })
@@ -59,7 +58,7 @@ async def restart():
 
 @router.get("/backpack_content", status_code=status.HTTP_200_OK)
 async def backpack_content():
-    items = hiker.get_backpack_content()
+    items = get_backpack_content(hiker)
     return JSONResponse({
         "backpack_content": f"{items}"
     })
@@ -75,10 +74,10 @@ async def pocket_content():
 
 @router.post("/add_to_backpack")
 async def add_to_backpack(body: Item):
-    if not hiker.backpack.is_full():
-        hiker.backpack.add_item(body.item)
+    if not is_full(hiker.backpack):
+        add_item(hiker.backpack, body.name)
         return JSONResponse({
-            "message": f"You've packed a {body.item.name}. {ITEM_RESPONSES.get(body.item.name)}."
+            "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
         })
     else:
         raise HTTPException(status_code=400,
@@ -87,15 +86,15 @@ async def add_to_backpack(body: Item):
 
 @router.post("/add_to_pocket")
 async def add_to_pocket(body: Item):
-    if not body.is_pocket_size():
+    if not is_pocket_size(body):
         raise HTTPException(status_code=403,
-                            detail=f"Are you trying to put {body.item.name} into your pocket? Really...")
-    if hiker.pocket.is_full():
+                            detail=f"Are you trying to put {body.name} into your pocket? Really...")
+    if is_full(hiker.pocket):
         raise HTTPException(status_code=400,
                             detail=f"Your pocket is full already.")
-    hiker.pocket.add_item(body.item)
+    add_item(hiker.pocket, body.name)
     return JSONResponse({
-        "message": f"You've packed a {body.item.name}. {ITEM_RESPONSES.get(body.item.name)}."
+        "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
     })
 
 
@@ -103,7 +102,7 @@ async def add_to_pocket(body: Item):
 async def swap_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    hiker.backpack.swap_item(item_removed, item_added)
+    await swap_item(hiker.backpack, item_removed, item_added)
     return JSONResponse({
         "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
                    f"Remember, all that matters is to survive."
@@ -114,7 +113,7 @@ async def swap_item(body: ReplaceItemModel):
 async def swap_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    hiker.pocket.swap_item(item_removed, item_added)
+    await swap_item(hiker.pocket, item_removed, item_added)
     return JSONResponse({
         "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
                    f"Remember, all that matters is to survive."
@@ -123,7 +122,7 @@ async def swap_item(body: ReplaceItemModel):
 
 @router.put("/pack_all_to_backpack", status_code=status.HTTP_201_CREATED)
 async def pack_all_to_backpack(items: List[ItemName] = Query(...)):
-    hiker.backpack.put_items(items)
+    put_items(hiker.backpack, items)
     return JSONResponse(
         {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
     )
@@ -134,7 +133,7 @@ async def pack_all_to_pocket(items: List[ItemName] = Query(...)):
     if not all(item.name in _POCKET_ITEM_NAMES for item in items):
         raise HTTPException(status_code=403,
                             detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
-    hiker.pocket.put_items(items)
+    put_items(hiker.pocket, items)
     return JSONResponse(
         {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
     )
@@ -142,7 +141,7 @@ async def pack_all_to_pocket(items: List[ItemName] = Query(...)):
 
 @router.delete("/remove_from_backpack", status_code=status.HTTP_200_OK)
 async def remove_from_backpack(item: ItemName):
-    hiker.backpack.remove_item(item)
+    remove_item(hiker.backpack, item)
     return JSONResponse(
         {"message": f"{item} has been removed from your backpack."}
     )
@@ -150,7 +149,7 @@ async def remove_from_backpack(item: ItemName):
 
 @router.delete("/remove_from_pocket", status_code=status.HTTP_200_OK)
 async def remove_from_pocket(item: ItemName):
-    hiker.pocket.remove_item(item)
+    remove_item(hiker.pocket, item)
     return JSONResponse(
         {"message": f"{item} has been removed from your pocket."}
     )
