@@ -77,7 +77,7 @@ async def add_to_backpack(body: Item):
     if not is_full(hiker.backpack):
         add_item(hiker.backpack, body.name)
         return JSONResponse({
-            "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
+            "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}."
         })
     else:
         raise HTTPException(status_code=400,
@@ -88,13 +88,13 @@ async def add_to_backpack(body: Item):
 async def add_to_pocket(body: Item):
     if not is_pocket_size(body):
         raise HTTPException(status_code=403,
-                            detail=f"Are you trying to put {body.name} into your pocket? Really...")
+                            detail=f"Are you trying to put {body.name.name} into your pocket? Really...")
     if is_full(hiker.pocket):
         raise HTTPException(status_code=400,
                             detail=f"Your pocket is full already.")
-    add_item(hiker.pocket, body.name)
+    add_item(hiker.pocket, body.name.name)
     return JSONResponse({
-        "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
+        "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}."
     })
 
 
@@ -130,7 +130,7 @@ async def pack_all_to_backpack(items: List[ItemName] = Query(...)):
 
 @router.put("/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
 async def pack_all_to_pocket(items: List[ItemName] = Query(...)):
-    if not all(item.name in _POCKET_ITEM_NAMES for item in items):
+    if not all(itemName in _POCKET_ITEM_NAMES for itemName in items):
         raise HTTPException(status_code=403,
                             detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
     put_items(hiker.pocket, items)

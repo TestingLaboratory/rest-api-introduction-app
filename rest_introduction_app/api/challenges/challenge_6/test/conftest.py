@@ -15,9 +15,10 @@ def empty_backpack():
 
 @pytest.fixture()
 def two_items_backpack():
-    return Storage("backpack", 3, ["tent", "knife"])
+    return Storage("backpack", 3, [ItemName["tent"], ItemName["knife"]])
 
 
 @pytest.fixture()
 def three_items() -> list[ItemName]:
     return [ItemName["lighter"], ItemName["camera"], ItemName["knife"]]
+
