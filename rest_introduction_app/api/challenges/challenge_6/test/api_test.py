@@ -9,7 +9,7 @@ client = TestClient(app)
 baseUrl = "/api/challenge/diatlov-pass"
 
 
-@pytest.fixture
+@pytest.fixture()
 def cleanup():
     yield
     path = "restart"
@@ -81,7 +81,7 @@ def test_add_to_backpack(cleanup):
     assert item_to_add in backpack_content_after_add
 
 
-def test_add_to_pocket():
+def test_add_to_pocket(cleanup):
     path = "pocket_content"
     pocket_content = client.get(f"{baseUrl}/{path}")
     pocket_content_before_add = pocket_content.json()["pocket_content"].split(",")
@@ -98,3 +98,19 @@ def test_add_to_pocket():
     else:
         assert len(pocket_content_after_add) == 1
     assert item_to_add in pocket_content_after_add
+
+
+def test_swap_item(cleanup):
+    path = "swap_backpack_item"
+    item_to_remove = "tent"
+    item_to_add = "winter jacket"
+    client.post(url=f"{baseUrl}/add_to_backpack",
+                json={
+                    "name": item_to_remove
+                })
+    response = client.patch(url=f"{baseUrl}/{path}",
+                            json={
+                                    "item_to_unpack": item_to_remove,
+                                    "item_to_pack": item_to_add
+                            })
+    assert response.status_code == 201

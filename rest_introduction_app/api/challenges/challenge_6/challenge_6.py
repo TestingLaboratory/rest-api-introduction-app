@@ -11,11 +11,11 @@ from typing import List
 from fastapi import APIRouter, Query
 from starlette import status
 from starlette.exceptions import HTTPException
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
     _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item, \
-    get_pocket_content
+    get_pocket_content, swap_item
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
@@ -95,26 +95,26 @@ async def add_to_pocket(body: Item):
                             detail=f"Your pocket is full already.")
     add_item(hiker.pocket, body.name)
     return JSONResponse({
-        "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}."
+        "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}"
     })
 
 
 @router.patch("/swap_backpack_item", status_code=status.HTTP_201_CREATED)
-async def swap_item(body: ReplaceItemModel):
+async def swap_backpack_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    await swap_item(hiker.backpack, item_removed, item_added)
+    swap_item(hiker.backpack, item_removed, item_added)
     return JSONResponse({
-        "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
+        "message": f"You've decided to take {item_added.name} instead of {item_removed.name} "
                    f"Remember, all that matters is to survive."
     })
 
 
 @router.patch("/swap_pocket_item", status_code=status.HTTP_201_CREATED)
-async def swap_item(body: ReplaceItemModel):
+async def swap_pocket_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    await swap_item(hiker.pocket, item_removed, item_added)
+    swap_item(hiker.pocket, item_removed, item_added)
     return JSONResponse({
         "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
                    f"Remember, all that matters is to survive."
