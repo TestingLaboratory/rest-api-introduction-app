@@ -14,7 +14,8 @@ from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
-    _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item
+    _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item, \
+    get_pocket_content
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
@@ -66,7 +67,7 @@ async def backpack_content():
 
 @router.get("/pocket_content", status_code=status.HTTP_200_OK)
 async def pocket_content():
-    items = ",".join([item.name for item in hiker.pocket.content])
+    items = get_pocket_content(hiker)
     return JSONResponse({
         "pocket_content": f"{items}"
     })
@@ -92,7 +93,7 @@ async def add_to_pocket(body: Item):
     if is_full(hiker.pocket):
         raise HTTPException(status_code=400,
                             detail=f"Your pocket is full already.")
-    add_item(hiker.pocket, body.name.name)
+    add_item(hiker.pocket, body.name)
     return JSONResponse({
         "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}."
     })

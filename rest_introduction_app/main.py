@@ -3,6 +3,7 @@
 Serves all all api challenges and training materials
 Look out for auth clashes and multiple cookies
 """
+import uvicorn
 from fastapi import FastAPI
 
 from rest_introduction_app.api.api import api_router
@@ -16,3 +17,6 @@ app = FastAPI(
 )
 
 app.include_router(api_router, prefix='/api')
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8080)

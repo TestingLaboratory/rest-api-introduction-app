@@ -61,3 +61,40 @@ def test_pocket_content(item, cleanup):
     assert response.status_code == 200
     assert response.json()["pocket_content"] == f"{item}"
 
+
+def test_add_to_backpack(cleanup):
+    path = "backpack_content"
+    backpack_content_response = client.get(f"{baseUrl}/{path}")
+    backpack_content_before_add = backpack_content_response.json()["backpack_content"].split(",")
+    item_to_add = "tent"
+    response = client.post(url=f"{baseUrl}/add_to_backpack",
+                           json={
+                               "name": item_to_add
+                           })
+    assert response.status_code == 200
+    backpack_content_response = client.get(f"{baseUrl}/{path}")
+    backpack_content_after_add = backpack_content_response.json()["backpack_content"].split(",")
+    if backpack_content_before_add[0]:
+        assert len(backpack_content_before_add) + 1 == len(backpack_content_after_add)
+    else:
+        assert len(backpack_content_after_add) == 1
+    assert item_to_add in backpack_content_after_add
+
+
+def test_add_to_pocket():
+    path = "pocket_content"
+    pocket_content = client.get(f"{baseUrl}/{path}")
+    pocket_content_before_add = pocket_content.json()["pocket_content"].split(",")
+    item_to_add = "matches"
+    response = client.post(url=f"{baseUrl}/add_to_pocket",
+                           json={
+                               "name": item_to_add
+                           })
+    assert response.status_code == 200
+    pocket_content_response = client.get(f"{baseUrl}/{path}")
+    pocket_content_after_add = pocket_content_response.json()["pocket_content"].split(",")
+    if pocket_content_before_add[0]:
+        assert len(pocket_content_before_add) + 1 == len(pocket_content_after_add)
+    else:
+        assert len(pocket_content_after_add) == 1
+    assert item_to_add in pocket_content_after_add

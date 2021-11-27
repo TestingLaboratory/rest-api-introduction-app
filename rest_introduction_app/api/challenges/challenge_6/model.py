@@ -99,6 +99,10 @@ def get_backpack_content(hiker: Hiker):
     return ",".join([item.name for item in hiker.backpack.content])
 
 
+def get_pocket_content(hiker: Hiker):
+    return ",".join([item.name for item in hiker.pocket.content])
+
+
 def is_item_packed(hiker: Hiker, item: ItemName):
     return item in hiker.backpack or item in hiker.pocket
 
