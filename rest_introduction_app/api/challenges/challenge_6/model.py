@@ -116,8 +116,3 @@ def missing_items_to_win(hiker: Hiker, items_to_win):
     all_hiker_items = hiker.pocket.content + hiker.backpack.content
     missing_items = [item for item in items_to_win if item not in all_hiker_items]
     return missing_items
-
-
-    # def verify_flags(self):
-
-#         iterate through items_to_win and add flags

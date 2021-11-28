@@ -11,15 +11,14 @@ from typing import List
 from fastapi import APIRouter, Query
 from starlette import status
 from starlette.exceptions import HTTPException
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
     _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item, \
-    get_pocket_content, swap_item, is_night_survived, missing_items_to_win
+    get_pocket_content, swap_item, missing_items_to_win
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
-# router.include_router()
 
 hiker = Hiker()
 
