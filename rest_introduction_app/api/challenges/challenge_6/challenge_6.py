@@ -15,7 +15,7 @@ from starlette.responses import JSONResponse, Response
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
     _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item, \
-    get_pocket_content, swap_item
+    get_pocket_content, swap_item, is_night_survived, missing_items_to_win
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
@@ -36,10 +36,13 @@ ITEM_RESPONSES = {
     "headlamp": "Go straight ahead, clear the path with a stream of light.",
     "bottled_water": "Remember - plastic bottle can decompose for up to 1000 years." +
                      "That's much longer than the decomposition of the human body.",
-    "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
+    "winter_jacket": "Hope you still own this jacket at the end of this journey :)"
 }
 
 ITEMS_TO_WIN = ["map", "tent", "knife", "torch", "lighter", "compass", "winter jacket"]
+
+# TODO: fill in missing item responses
+MISSING_ITEM_RESPONSES = []
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -47,6 +50,21 @@ async def information():
     return {
         "CRITICAL": "Development in progress. Sorry, this challenge is not ready yet."
     }
+
+
+@router.get("/sleep", status_code=status.HTTP_200_OK)
+async def go_to_sleep():
+    missing_items = missing_items_to_win(hiker, ITEMS_TO_WIN)
+    number_of_missing_items = len(missing_items)
+    if number_of_missing_items == 0:
+        return JSONResponse({
+            "message": "Congratulations, brave scout! You have been prepared for any unconventional types of danger! "
+                       "You saved yourself with all of your excursion companions."
+        })
+    else:
+        return JSONResponse({
+            "message": MISSING_ITEM_RESPONSES[missing_items[0]]
+        })
 
 
 @router.get("/restart", status_code=status.HTTP_200_OK)
