@@ -2,8 +2,13 @@ from enum import Enum
 from dataclasses import dataclass, field
 from typing import List
 
+import uuid as uuid
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
+
+
+class HikerCheckIn(BaseModel):
+    name: str
 
 
 class ItemName(Enum):
@@ -47,9 +52,17 @@ class Storage:
 
 @dataclass
 class Hiker:
+    name: str
+    uuid: str
+    flags: List[str]
     backpack: Storage = Storage("backpack", 5)
     pocket: Storage = Storage("pocket", 2)
-    flags: List[str] = field(default_factory=lambda: [])
+
+    def __init__(self, name: str):
+        self.name = name
+        self.uuid = str(uuid.uuid5(uuid.NAMESPACE_DNS, name))
+        self.flags = []
+
 
 # Storage methods
 
