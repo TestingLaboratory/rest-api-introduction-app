@@ -99,9 +99,20 @@ def get_backpack_content(hiker: Hiker):
     return ",".join([item.name for item in hiker.backpack.content])
 
 
+def get_pocket_content(hiker: Hiker):
+    return ",".join([item.name for item in hiker.pocket.content])
+
+
 def is_item_packed(hiker: Hiker, item: ItemName):
     return item in hiker.backpack or item in hiker.pocket
 
-    # def verify_flags(self):
 
-#         iterate through items_to_win and add flags
+def is_night_survived(hiker: Hiker, items_to_win):
+    all_hiker_items = hiker.pocket.content + hiker.backpack.content
+    return items_to_win in all_hiker_items
+
+
+def missing_items_to_win(hiker: Hiker, items_to_win):
+    all_hiker_items = hiker.pocket.content + hiker.backpack.content
+    missing_items = [item for item in items_to_win if item not in all_hiker_items]
+    return missing_items

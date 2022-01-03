@@ -1,7 +1,6 @@
 import pytest
 
-
-from rest_introduction_app.api.challenges.challenge_6.model import Storage, ItemName, Item, Hiker, is_pocket_size, \
+from rest_introduction_app.api.challenges.challenge_6.model import ItemName, Item, is_pocket_size, \
     add_item, remove_item, put_items, swap_item, is_full
 from rest_introduction_app.api.challenges.challenge_6.test.utils import not_full_backpacks, full_backpacks
 

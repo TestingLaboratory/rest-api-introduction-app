@@ -14,11 +14,11 @@ from starlette.exceptions import HTTPException
 from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_6.model import Hiker, ItemName, Item, ReplaceItemModel, \
-    _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item
+    _POCKET_ITEM_NAMES, set_to_default, get_backpack_content, is_full, add_item, is_pocket_size, put_items, remove_item, \
+    get_pocket_content, swap_item, missing_items_to_win
 
 challenge_tag = "Challenge - Excursions on Diatlov Pass"
 router = APIRouter(prefix="/challenge/diatlov-pass")
-# router.include_router()
 
 hiker = Hiker()
 
@@ -35,10 +35,13 @@ ITEM_RESPONSES = {
     "headlamp": "Go straight ahead, clear the path with a stream of light.",
     "bottled_water": "Remember - plastic bottle can decompose for up to 1000 years." +
                      "That's much longer than the decomposition of the human body.",
-    "winter_jacket": "Hope you still own this jacket at the end of this journey :)",
+    "winter_jacket": "Hope you still own this jacket at the end of this journey :)"
 }
 
 ITEMS_TO_WIN = ["map", "tent", "knife", "torch", "lighter", "compass", "winter jacket"]
+
+# TODO: fill in missing item responses
+MISSING_ITEM_RESPONSES = []
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -46,6 +49,21 @@ async def information():
     return {
         "CRITICAL": "Development in progress. Sorry, this challenge is not ready yet."
     }
+
+
+@router.get("/sleep", status_code=status.HTTP_200_OK)
+async def go_to_sleep():
+    missing_items = missing_items_to_win(hiker, ITEMS_TO_WIN)
+    number_of_missing_items = len(missing_items)
+    if number_of_missing_items == 0:
+        return JSONResponse({
+            "message": "Congratulations, brave scout! You have been prepared for any unconventional types of danger! "
+                       "You saved yourself with all of your excursion companions."
+        })
+    else:
+        return JSONResponse({
+            "message": MISSING_ITEM_RESPONSES[missing_items[0]]
+        })
 
 
 @router.get("/restart", status_code=status.HTTP_200_OK)
@@ -66,7 +84,7 @@ async def backpack_content():
 
 @router.get("/pocket_content", status_code=status.HTTP_200_OK)
 async def pocket_content():
-    items = ",".join([item.name for item in hiker.pocket.content])
+    items = get_pocket_content(hiker)
     return JSONResponse({
         "pocket_content": f"{items}"
     })
@@ -77,7 +95,7 @@ async def add_to_backpack(body: Item):
     if not is_full(hiker.backpack):
         add_item(hiker.backpack, body.name)
         return JSONResponse({
-            "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
+            "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}."
         })
     else:
         raise HTTPException(status_code=400,
@@ -88,32 +106,32 @@ async def add_to_backpack(body: Item):
 async def add_to_pocket(body: Item):
     if not is_pocket_size(body):
         raise HTTPException(status_code=403,
-                            detail=f"Are you trying to put {body.name} into your pocket? Really...")
+                            detail=f"Are you trying to put {body.name.name} into your pocket? Really...")
     if is_full(hiker.pocket):
         raise HTTPException(status_code=400,
                             detail=f"Your pocket is full already.")
     add_item(hiker.pocket, body.name)
     return JSONResponse({
-        "message": f"You've packed a {body.name}. {ITEM_RESPONSES.get(body.name)}."
+        "message": f"You've packed a {body.name.name}. {ITEM_RESPONSES.get(body.name.name)}"
     })
 
 
 @router.patch("/swap_backpack_item", status_code=status.HTTP_201_CREATED)
-async def swap_item(body: ReplaceItemModel):
+async def swap_backpack_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    await swap_item(hiker.backpack, item_removed, item_added)
+    swap_item(hiker.backpack, item_removed, item_added)
     return JSONResponse({
-        "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
+        "message": f"You've decided to take {item_added.name} instead of {item_removed.name} "
                    f"Remember, all that matters is to survive."
     })
 
 
 @router.patch("/swap_pocket_item", status_code=status.HTTP_201_CREATED)
-async def swap_item(body: ReplaceItemModel):
+async def swap_pocket_item(body: ReplaceItemModel):
     item_removed = body.item_to_unpack
     item_added = body.item_to_pack
-    await swap_item(hiker.pocket, item_removed, item_added)
+    swap_item(hiker.pocket, item_removed, item_added)
     return JSONResponse({
         "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
                    f"Remember, all that matters is to survive."
@@ -130,7 +148,7 @@ async def pack_all_to_backpack(items: List[ItemName] = Query(...)):
 
 @router.put("/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
 async def pack_all_to_pocket(items: List[ItemName] = Query(...)):
-    if not all(item.name in _POCKET_ITEM_NAMES for item in items):
+    if not all(itemName in _POCKET_ITEM_NAMES for itemName in items):
         raise HTTPException(status_code=403,
                             detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
     put_items(hiker.pocket, items)
