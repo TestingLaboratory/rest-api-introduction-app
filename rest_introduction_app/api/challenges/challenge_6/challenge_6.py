@@ -39,17 +39,26 @@ ITEM_RESPONSES = {
     "winter_jacket": "Hope you still own this jacket at the end of this journey :)"
 }
 
-ITEMS_TO_WIN = ["map", "tent", "knife", "torch", "lighter", "compass", "winter jacket"]
+ITEMS_TO_WIN = [ItemName.map, ItemName.tent, ItemName.knife, ItemName.torch, ItemName.lighter, ItemName.compass,
+                ItemName.winter_jacket]
 
-# TODO: fill in missing item responses
-# TODO: ID as an endpoint path paramether
-MISSING_ITEM_RESPONSES = {"map": "blabla",
-                          "tent": "blabla",
-                          "knife": "blabla",
-                          "torch": "blabla",
-                          "lighter": "blabla",
-                          "compass": "blabla",
-                          "winter jacket": "blabla"}
+
+MISSING_ITEM_RESPONSES = {"map": "You've lost your path among darkness of northern ural forests. "
+                                 "Died from hunger and frostbite.",
+                          "tent": "It was too late to think about any shelter. "
+                                  "Exhausted after long walk, you decided to sleep under the open sky. "
+                                  "Something smelled a human scent, something was very hungry. "
+                                  "You were just helpless...",
+                          "knife": "It was HUGE, some people call it yeti. "
+                                   "Anyway... it devoured you, and you had no chances to defend yourself.",
+                          "torch": "Then it was a night, you've heard some noises, moving shadows, "
+                                   "but couldn't see them in the night light. Your last view was blurred figure, "
+                                   "standing in front of you, shouting with non-human voice.",
+                          "lighter": "Matches scattered on the ground. Sulphur got wet, so you couldn't make a fire. "
+                                     "No heat, no warm food and frostbites.",
+                          "compass": "At some point you realized that the path doesn't match with your plan. "
+                                     "It was to late to find last orientation point. You got lost..' ",
+                          "winter jacket": "Very brave... but without winter jacket, you lost at the beginning."}
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
@@ -78,9 +87,8 @@ async def check_in(hiker_check_in: HikerCheckIn):
         )
         return response
     else:
-
         return JSONResponse(
-            status_code=422,
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             content={
                 "message": f"{hiker_check_in.name} has already registered. Do you want to go instead? "
                            f"I wouldn't recommend it. Believe me son..."
@@ -104,22 +112,21 @@ async def participants():
         )
 
 
-@router.get("{id_number}/sleep", status_code=status.HTTP_200_OK)
-async def go_to_sleep(id_number: str):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.get("/{hiker_badge_id}/sleep", status_code=status.HTTP_200_OK)
+async def go_to_sleep(hiker_badge_id: str):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         missing_items = missing_items_to_win(hiker, ITEMS_TO_WIN)
         number_of_missing_items = len(missing_items)
         if number_of_missing_items == 0:
-            return JSONResponse({
-                "message": "Congratulations, brave scout! "
-                           "You have been prepared for any unconventional types of danger! "
-                           "You saved yourself with all of your excursion companions."
-            })
+            message = "Congratulations, brave scout! You have been prepared for any unconventional types of danger! " \
+                      "You saved yourself with all of your excursion companions."
         else:
-            return JSONResponse({
-                "message": MISSING_ITEM_RESPONSES[missing_items[0]]
-            })
+            message = MISSING_ITEM_RESPONSES[missing_items[0]]
+
+        return JSONResponse({
+            "message": message
+        })
     else:
         return JSONResponse({
             "message": "Fake ID! A spy trying to sabotage the excursion! "
@@ -127,24 +134,23 @@ async def go_to_sleep(id_number: str):
         })
 
 
-@router.get("{id_number}/restart", status_code=status.HTTP_200_OK)
-async def restart(id_number: str):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.get("/{hiker_badge_id}/restart", status_code=status.HTTP_200_OK)
+async def restart(hiker_badge_id: str):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         set_to_default(hiker)
-        return JSONResponse({
-            "message": "Game has been restarted."
-        })
+        message = "Game has been restarted."
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
                        "Let the world forget about him forever, commander..."
-        })
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.get("{id_number}/backpack_content", status_code=status.HTTP_200_OK)
-async def backpack_content(id_number: str):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.get("/{hiker_badge_id}/backpack_content", status_code=status.HTTP_200_OK)
+async def backpack_content(hiker_badge_id: str):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         items = get_backpack_content(hiker)
         return JSONResponse({
@@ -157,9 +163,9 @@ async def backpack_content(id_number: str):
         })
 
 
-@router.get("{id_number}/pocket_content", status_code=status.HTTP_200_OK)
-async def pocket_content(id_number: str):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.get("/{hiker_badge_id}/pocket_content", status_code=status.HTTP_200_OK)
+async def pocket_content(hiker_badge_id: str):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         items = get_pocket_content(hiker)
         return JSONResponse({
@@ -172,9 +178,9 @@ async def pocket_content(id_number: str):
         })
 
 
-@router.post("{id_number}/add_to_backpack")
-async def add_to_backpack(id_number: str, body: Item):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.post("/{hiker_badge_id}/add_to_backpack")
+async def add_to_backpack(hiker_badge_id: str, body: Item):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         if not is_full(hiker.backpack):
             add_item(hiker.backpack, body.name)
@@ -191,9 +197,9 @@ async def add_to_backpack(id_number: str, body: Item):
         })
 
 
-@router.post("{id_number}/add_to_pocket")
-async def add_to_pocket(id_number: str, body: Item):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.post("/{hiker_badge_id}/add_to_pocket")
+async def add_to_pocket(hiker_badge_id: str, body: Item):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         if not is_pocket_size(body):
             raise HTTPException(status_code=403,
@@ -212,100 +218,94 @@ async def add_to_pocket(id_number: str, body: Item):
         })
 
 
-@router.patch("{id_number}/swap_backpack_item", status_code=status.HTTP_201_CREATED)
-async def swap_backpack_item(id_number: str, body: ReplaceItemModel):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.patch("/{hiker_badge_id}/swap_backpack_item", status_code=status.HTTP_201_CREATED)
+async def swap_backpack_item(hiker_badge_id: str, body: ReplaceItemModel):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         item_removed = body.item_to_unpack
         item_added = body.item_to_pack
         swap_item(hiker.backpack, item_removed, item_added)
-        return JSONResponse({
-            "message": f"You've decided to take {item_added.name} instead of {item_removed.name} "
-                       f"Remember, all that matters is to survive."
-        })
+        message = f"You've decided to take {item_added.name} instead of {item_removed.name} "\
+                  f"Remember, all that matters is to survive."
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.patch("{id_number}/swap_pocket_item", status_code=status.HTTP_201_CREATED)
-async def swap_pocket_item(id_number: str, body: ReplaceItemModel):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.patch("/{hiker_badge_id}/swap_pocket_item", status_code=status.HTTP_201_CREATED)
+async def swap_pocket_item(hiker_badge_id: str, body: ReplaceItemModel):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         item_removed = body.item_to_unpack
         item_added = body.item_to_pack
         swap_item(hiker.pocket, item_removed, item_added)
-        return JSONResponse({
-            "message": f"You've decided to take {item_added.name} instead of {item_removed.name}. "
-                       f"Remember, all that matters is to survive."
-        })
+        message = f"You've decided to take {item_added.name} instead of {item_removed.name}. "\
+                  f"Remember, all that matters is to survive."
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.put("{id_number}/pack_all_to_backpack", status_code=status.HTTP_201_CREATED)
-async def pack_all_to_backpack(id_number: str, items: List[ItemName] = Query(...)):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.put("/{hiker_badge_id}/pack_all_to_backpack", status_code=status.HTTP_201_CREATED)
+async def pack_all_to_backpack(hiker_badge_id: str, items: List[ItemName] = Query(...)):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         put_items(hiker.backpack, items)
-        return JSONResponse(
-            {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
-        )
+        message = "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.put("{id_number}/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
-async def pack_all_to_pocket(id_number: str, items: List[ItemName] = Query(...)):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.put("/{hiker_badge_id}/pack_all_to_pocket", status_code=status.HTTP_201_CREATED)
+async def pack_all_to_pocket(hiker_badge_id: str, items: List[ItemName] = Query(...)):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         if not all(itemName in _POCKET_ITEM_NAMES for itemName in items):
             raise HTTPException(status_code=403,
                                 detail=f"Ugh agh... some of your items can't fit your pocket. Let's see...")
         put_items(hiker.pocket, items)
-        return JSONResponse(
-            {"message": "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"}
-        )
+        message = "You've packed in a rush, huh? Do you have that strong feeling that you forgot something?"
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.delete("{id_number}/remove_from_backpack", status_code=status.HTTP_200_OK)
-async def remove_from_backpack(id_number: str, item: ItemName):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.delete("/{hiker_badge_id}/remove_from_backpack", status_code=status.HTTP_200_OK)
+async def remove_from_backpack(hiker_badge_id: str, item: ItemName):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         remove_item(hiker.backpack, item)
-        return JSONResponse(
-            {"message": f"{item} has been removed from your backpack."}
-        )
+        message = f"{item} has been removed from your backpack."
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
 
 
-@router.delete("{id_number}/remove_from_pocket", status_code=status.HTTP_200_OK)
-async def remove_from_pocket(id_number: str, item: ItemName):
-    hiker = next(filter(lambda h: h.uuid == id_number, hikers), None)
+@router.delete("/{hiker_badge_id}/remove_from_pocket", status_code=status.HTTP_200_OK)
+async def remove_from_pocket(hiker_badge_id: str, item: ItemName):
+    hiker = next(filter(lambda h: h.uuid == hiker_badge_id, hikers), None)
     if hiker:
         remove_item(hiker.pocket, item)
-        return JSONResponse(
-            {"message": f"{item} has been removed from your pocket."}
-        )
+        message = f"{item} has been removed from your pocket."
     else:
-        return JSONResponse({
-            "message": "Fake ID! A spy trying to sabotage the excursion! "
-                       "Let the world forget about him forever, commander..."
-        })
+        message = "Fake ID! A spy trying to sabotage the excursion! "\
+                  "Let the world forget about him forever, commander..."
+    return JSONResponse({
+        "message": message
+    })
