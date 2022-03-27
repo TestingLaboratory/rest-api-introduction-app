@@ -35,6 +35,8 @@ bio_robots_mission = Mission("Valerij Legasov", "223-201-209", "The Bio Robots")
 # flaga - in Soviet Russia the phonecall cancels you
 # just casually getting a tan near reactor 4 block
 # graphite flakes on strawberries leaves
+# most important 90 seconds of your life, comrade (new endpoint - uuid3/{id} with graphite blocks
+# run as many DELETE on resources as you can - 1_000 graphite pieces, actual timer per uuid)
 
 missions = [chernobyl_mission, cleanup_mission, western_robots_mission, bio_robots_mission]
 
