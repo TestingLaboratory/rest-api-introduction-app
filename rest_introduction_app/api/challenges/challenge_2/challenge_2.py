@@ -1,9 +1,9 @@
 """
 Chernobyl Reactor
 """
-from typing import List
+from typing import List, Union, Optional
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from starlette import status
 from starlette.responses import JSONResponse
 
@@ -19,22 +19,36 @@ reactors: List[ReactorCore] = []
 
 
 @router.get("/information", status_code=status.HTTP_200_OK)
-async def get_information():
+async def get_information(
+        for_frontend: str = Header(default=None, convert_underscores=True, include_in_schema=False)
+):
     """
     Get this resource to obtain mission debrief
     """
-    return {
-        "message": f"You are the Tech Commander of RBMK reactor power plant. "
-                   f"Your task is to perform the reactor test. "
-                   f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
-                   f"Use /{{key}}/control_room/analysis to peek at reactor core. "
-                   f"Use /{{key}}/control_room to see full info about the reactor. "
-                   f"Check in at the /desk to get your key to control room. "
-                   f"Put in fuel rods or pull out control rods to raise the power. "
-                   f"Put in control rods or pull out fuel rods to decrease the power. "
-                   f"There are 12 flags to find. "
-                   f"Good luck Commander. "
-    }
+    if for_frontend == "only":
+        return {
+            "message": f"You are the Tech Commander of RBMK reactor power plant. "
+                       f"Your task is to perform the reactor test. "
+                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Don't forget to pick up the key on your way up. "
+                       f"Put in fuel rods or pull out control rods to raise the power. "
+                       f"Put in control rods or pull out fuel rods to decrease the power. "
+                       f"Good luck Commander. ",
+            "flags_to_find": 12
+        }
+    else:
+        return {
+            "message": f"You are the Tech Commander of RBMK reactor power plant. "
+                       f"Your task is to perform the reactor test. "
+                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Use /{{key}}/control_room/analysis to peek at reactor core. "
+                       f"Use /{{key}}/control_room to see full info about the reactor. "
+                       f"Check in at the /desk to get your key to control room. "
+                       f"Put in fuel rods or pull out control rods to raise the power. "
+                       f"Put in control rods or pull out fuel rods to decrease the power. "
+                       f"There are 12 flags to find. "
+                       f"Good luck Commander. "
+        }
 
 
 @router.post("/desk", status_code=status.HTTP_201_CREATED)
