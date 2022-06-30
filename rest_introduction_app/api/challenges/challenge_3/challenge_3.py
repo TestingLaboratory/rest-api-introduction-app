@@ -20,13 +20,12 @@ sequence = {
 TECHNICIANS: List[LabTechnician] = []
 
 
-def all_flags_collected(credentials: HTTPBasicCredentials):
-    content = {"message": None}
+def message_for_researcher(credentials: HTTPBasicCredentials):
     if is_winner(credentials):
-        content['message'] = "CONGRATS! YOUR RNA IS READY TO TRANSLATE INTO PROTEIN! \n USE /translate ENDPOINT"
+        message = "CONGRATS! YOUR RNA IS READY TO TRANSLATE INTO PROTEIN! \n USE /translate ENDPOINT"
     else:
-        content['message'] = "Maybe watch Andromeda Strain movie for some reference..."
-    return JSONResponse(content=content)
+        message = "Maybe watch Andromeda Strain movie for some reference..."
+    return message
 
 
 def is_winner(credentials: HTTPBasicCredentials):
@@ -111,11 +110,11 @@ async def get_sequence(credentials: HTTPBasicCredentials = Depends(security)):
     Get this resource to obtain sequence of the matrix
     """
     if has_credentials(credentials):
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "primary_sequence": sequence["isolated"],
             "message": "This is a sequence of isolated, unmodified RNA sample."
-                       f" You can compare your copy with this sequence. {flags_completed}"
+                       f" You can compare your copy with this sequence. {additional_message_for_researcher}"
         }
 
 
@@ -128,10 +127,10 @@ async def get_rna(credentials: HTTPBasicCredentials = Depends(security)):
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.observer += 1
         observer_flag = f"${{flag_observer_{technician.uuid}}}" if technician.observer >= 5 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "sample": sequence["copy"],
-            "message": f"{observer_flag} {flags_completed}"
+            "message": f"{observer_flag} {additional_message_for_researcher}"
         }
 
 
@@ -155,9 +154,9 @@ async def get_triplet(triplet_id: int,
         verify_triplet_id(triplet_id)
         triplet_index = (triplet_id - 1) * 3
         triplet = sequence["copy"].replace("_", "")[triplet_index: triplet_index + 3]
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
-            "message": f"Triplet at position {triplet_id}: {triplet} {flags_completed}"
+            "message": f"Triplet at position {triplet_id}: {triplet} {additional_message_for_researcher}"
         }
 
 
@@ -173,11 +172,11 @@ async def add_triplet(triplet_to_add: str = Query(..., min_length=3, max_length=
             if technician.aminoacid_appender >= 10 else ""
         architect_flag = f" ${{flag_architect_{technician.uuid}}}" \
             if technician.architect >= 50 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": f"Bravo! You've elongated the RNA strand you molecular freak!"
                        f"{aminoacid_appender_flag} {architect_flag} "
-                       f"To check it's sequence use GET /sample_sequence {flags_completed}"
+                       f"To check it's sequence use GET /sample_sequence {additional_message_for_researcher}"
         }
 
 
@@ -194,10 +193,10 @@ async def triplet_replacement(triplet_id: int,
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.mutator += 1
         mutator_flag = f" ${{flag_mutator_{technician.uuid}}}" if technician.mutator >= 10 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": f"Substitution of a triplet went smoothly.{mutator_flag} "
-                       f"To check the sequence use GET /sample_sequence {flags_completed}"
+                       f"To check the sequence use GET /sample_sequence {additional_message_for_researcher}"
         }
 
 
@@ -206,10 +205,10 @@ async def sequence_replacement(triplet_to_add: str = Query(..., min_length=3, ma
                                credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         sequence["copy"] = triplet_to_add
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": "Whoah! Only your triplet has left in the sample. It is definitely something to start with :) "
-                       f"To check the sequence use GET /sample_sequence. {flags_completed}"
+                       f"To check the sequence use GET /sample_sequence. {additional_message_for_researcher}"
         }
 
 
@@ -228,11 +227,11 @@ async def triplet_deletion(triplet_id: int,
             technician.eradicator += 1
         eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if technician.eradicator >= 1 else ""
         reductor_flag = f" ${{flag_reductor_{technician.uuid}}}" if technician.reductor >= 10 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": f"You are a master of restriction enzymes, you've cut out a part of RNA."
                        f"{reductor_flag} {eradicator_flag} "
-                       f"To check the sequence after the process use GET /sample_sequence {flags_completed}"
+                       f"To check the sequence after the process use GET /sample_sequence {additional_message_for_researcher}"
         }
 
 
@@ -243,9 +242,9 @@ async def get_nucleotide(nucleotide_id: int,
         verify_nucleotide_id(nucleotide_id)
         sequence["copy"] = sequence["copy"].replace("_", "")
         nucleotide = sequence["copy"][nucleotide_id - 1]
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return JSONResponse(
-            {"message": f"Nucleotide at position {nucleotide_id} is {nucleotide} {flags_completed}"}
+            {"message": f"Nucleotide at position {nucleotide_id} is {nucleotide} {additional_message_for_researcher}"}
         )
 
 
@@ -257,10 +256,10 @@ async def add_nucleotide(nucleotide_to_add: str = Query(..., min_length=1, max_l
         technician = next(filter(lambda t: t.name == credentials.username, TECHNICIANS), None)
         technician.nucleocreator += 1
         nucleocreator_flag = f" ${{flag_nucleocreator_{technician.uuid}}}" if technician.nucleocreator >= 10 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": f"That's one small nucleotide for man, but could be a one giant leap for mankind, keep going lab rat! "
-                       f"To check the sequence use GET /sample.{nucleocreator_flag} {flags_completed}"
+                       f"To check the sequence use GET /sample.{nucleocreator_flag} {additional_message_for_researcher}"
         }
 
 
@@ -273,10 +272,10 @@ async def nucleotide_replacement(nucleotide_id: int,
         sequence_list = list(sequence["copy"].replace("_", ""))
         sequence_list[nucleotide_id - 1:nucleotide_id] = nucleotide_to_add
         sequence["copy"] = "".join(sequence_list)
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": "Substitution of a nucleotide went smoothly. Change your gloves and keep going!"
-                       f"To check the sequence use GET /sample_sequence {flags_completed}"
+                       f"To check the sequence use GET /sample_sequence {additional_message_for_researcher}"
         }
 
 
@@ -285,9 +284,9 @@ async def sequence_replacement(nucleotide_to_add: str = Query(..., min_length=1,
                                credentials: HTTPBasicCredentials = Depends(security)):
     if has_credentials(credentials):
         sequence["copy"] = nucleotide_to_add
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
-            "message": f"'{nucleotide_to_add}' nucleotide in the sample! Let's add something to it ;) {flags_completed}"
+            "message": f"'{nucleotide_to_add}' nucleotide in the sample! Let's add something to it ;) {additional_message_for_researcher}"
         }
 
 
@@ -303,10 +302,10 @@ async def nucleotide_deletion(nucleotide_id: int,
         if not sequence:
             technician.eradicator += 1
         eradicator_flag = f" ${{flag_eradicator_{technician.uuid}}}" if technician.eradicator >= 1 else ""
-        flags_completed = all_flags_collected(credentials)
+        additional_message_for_researcher = message_for_researcher(credentials)
         return {
             "message": "You are a master of restriction enzymes, you've cut out a part of RNA. "
-                       f"{eradicator_flag}.To check the sequence after the process use GET /sample_sequence {flags_completed}"
+                       f"{eradicator_flag}.To check the sequence after the process use GET /sample_sequence {additional_message_for_researcher}"
         }
 
 
