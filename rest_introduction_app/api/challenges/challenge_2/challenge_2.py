@@ -34,7 +34,7 @@ async def get_information(
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
                        f"Good luck Commander. ",
-            "flags_to_find": 12
+            "flagsToFind": 12
         }
     else:
         return {
