@@ -325,3 +325,22 @@ async def reset_progress(key: str):
                 "flag": "${flag_atomna_elektrostancja_erector}"
             }
         )
+
+
+@router.get("/check_key/{key}", status_code=status.HTTP_200_OK)
+async def check_key(key: str):
+    if next(filter(lambda c: c.uuid == key, commanders), None):
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={
+                "message": "You can now proceed with the timeline reversal process.",
+            }
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_404_NOT_FOUND,
+            content={
+                "message": "Wrong key... Are you sure you know where you are? This is classified area.",
+            }
+        )
+
