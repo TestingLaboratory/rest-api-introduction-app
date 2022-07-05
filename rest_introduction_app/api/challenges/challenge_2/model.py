@@ -74,7 +74,7 @@ class ReactorCore:
 
     def __calculate_state(self):
         try:
-            rods_ratio = len(list(filter(lambda x: x != "", self.__fuel_rods)))\
+            rods_ratio = len(list(filter(lambda x: x != "", self.__fuel_rods))) \
                          / len(list(filter(lambda x: x != "", self.__control_rods)))
             # print(self.uuid, rods_ratio)
             if rods_ratio < 10:

@@ -1,6 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
+from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
+from starlette.requests import Request
+from starlette.responses import JSONResponse
 
 from rest_introduction_app.api.challenges.challenge_2 import challenge_2
 
@@ -12,6 +15,16 @@ app = FastAPI(
     redoc_url=None,
 )
 
+
+async def catch_exceptions_middleware(request: Request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        return JSONResponse({"message": "${nothing_to_see_here_move_along}"}, status_code=500)
+
+
+app.add_exception_handler(404, catch_exceptions_middleware)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,6 +35,7 @@ app.add_middleware(
 
 app.include_router(router=challenge_2.router,
                    tags=[challenge_2.challenge_tag])
+
 
 if __name__ == '__main__':
     uvicorn.run(app, host="0.0.0.0", port=9011)

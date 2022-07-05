@@ -34,7 +34,7 @@ async def get_information(
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
                        f"Good luck Commander. ",
-            "flagsToFind": 12
+            "flagsToFind": 13
         }
     else:
         return {
@@ -97,7 +97,7 @@ async def control_room(key: str):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         return {
-            "message": f"Hello {commander.name}. What would you like to see?",
+            "message": f"Hello, Comrade {commander.name}. What would you like to see?",
             "reactor data": reactor
         }
     else:
@@ -314,7 +314,7 @@ async def reset_progress(key: str):
             status_code=status.HTTP_200_OK,
             content={
                 "message": "Your reactor is good as new!",
-                "flag": "${flag_you_didnt_see_the_graphite_because_its_not_there}"
+                "flag": "${flag_you_didn't_see_the_graphite_because_it's_not_there}"
             }
         )
     else:
