@@ -97,7 +97,7 @@ async def control_room(key: str):
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
         return {
-            "message": f"Hello {commander.name}",
+            "message": f"Hello {commander.name}. What would you like to see?",
             "reactor data": reactor
         }
     else:
