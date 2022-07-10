@@ -1,14 +1,14 @@
 """
 Chernobyl Reactor
 """
-from typing import List, Union, Optional
+from typing import List
 
 from fastapi import APIRouter, Header
 from starlette import status
 from starlette.responses import JSONResponse
+from unidecode import unidecode
 
 from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
-from unidecode import unidecode
 
 challenge_prefix = "/challenge/reactor"
 challenge_tag = "Challenge - RBMK Reactor test"
@@ -25,6 +25,7 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
+    flags_to_find = 13
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
@@ -34,7 +35,7 @@ async def get_information(
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
                        f"Good luck Commander. ",
-            "flagsToFind": 13
+            "flagsToFind": flags_to_find
         }
     else:
         return {
@@ -46,7 +47,7 @@ async def get_information(
                        f"Check in at the /desk to get your key to control room. "
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
-                       f"There are 12 flags to find. "
+                       f"There are {flags_to_find} flags to find. "
                        f"Good luck Commander. "
         }
 
@@ -182,7 +183,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
             }
         else:
             return {
-                "message": f"Right, Comrade {commander.name}, {result}. "
+                "message": f"Right, Comrade {commander.name}, Reactor State is: {result}. "
                            f"Afraid of a meltdown, huh?",
                 "flag": f"${{flag_cherenkov_chicken_{commander.name}}}"
             }
@@ -340,7 +341,6 @@ async def check_key(key: str):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
-                "message": "Wrong key... Are you sure you know where you are? This is classified area.",
+                "message": "Wrong key...\nAre you sure you know where you are?\nThis is classified area.",
             }
         )
-
