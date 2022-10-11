@@ -1,0 +1,8 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /restintroduction
+hooks:
+  ApplicationStart:
+    - location: shell_scripts/run_all.sh
