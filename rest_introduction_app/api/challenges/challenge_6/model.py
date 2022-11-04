@@ -55,8 +55,8 @@ class Hiker:
     name: str
     uuid: str
     flags: List[str]
-    backpack: Storage = Storage("backpack", 5)
-    pocket: Storage = Storage("pocket", 2)
+    backpack: Storage = field(default_factory=lambda: Storage("backpack", 5))
+    pocket: Storage = field(default_factory=lambda: Storage("pocket", 2))
 
     def __init__(self, name: str):
         self.name = name

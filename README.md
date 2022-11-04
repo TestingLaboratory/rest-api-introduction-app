@@ -12,6 +12,8 @@ Open project the main directory and run **docker-compose.yml**:
 
 Then run `docker-compose up --build --force-recreate -d` to start the application
 
+If running on external machine i.e. AWS EC2 be sure to `docker run --expose=<port range> -p <source_port_range>:<target_port_range>`
+
 Containers should be build with application and service should run on **localhost**  with port **8080** and following ports for different examples and challenges 
 
 - 8080 - basics
