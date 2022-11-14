@@ -72,11 +72,11 @@ class ReactorCore:
         self.__calculate_state()
         return self.__state
 
+    #TODO improve calculations to blow up the reactor only when AZ5 is used
     def __calculate_state(self):
         try:
             rods_ratio = len(list(filter(lambda x: x != "", self.__fuel_rods))) \
                          / len(list(filter(lambda x: x != "", self.__control_rods)))
-            # print(self.uuid, rods_ratio)
             if rods_ratio < 10:
                 self.__state = "Operational"
             elif rods_ratio < 20:

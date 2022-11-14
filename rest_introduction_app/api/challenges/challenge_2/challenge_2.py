@@ -18,6 +18,8 @@ commanders: List[Commander] = []
 reactors: List[ReactorCore] = []
 
 
+# TODO create a single object for each flags_to_find
+
 @router.get("/information", status_code=status.HTTP_200_OK)
 async def get_information(
         for_frontend: str = Header(default=None, convert_underscores=True, include_in_schema=False)
@@ -25,7 +27,7 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
-    flags_to_find = 13
+    flags_to_find = 12
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
@@ -182,11 +184,21 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
                 "flag": f"${{flag_dead_in_two_weeks_{commander.name}}}"
             }
         else:
-            return {
-                "message": f"Right, Comrade {commander.name}, Reactor State is: {result}. "
-                           f"Afraid of a meltdown, huh?",
-                "flag": f"${{flag_cherenkov_chicken_{commander.name}}}"
+            return JSONResponse(
+                status_code=425,
+                content={
+                    "message": f"Right, Comrade {commander.name}, Reactor State is: {result}. "
+                               f"Afraid of a meltdown, huh?",
+                    "flag": f"${{flag_cherenkov_chicken_{commander.name}}}"
+                }
+            )
+    elif commander and reactor and not az_5_button.pressed:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "message": "So... How do you >unpress< the button? I mean... Is it even possible?"
             }
+        )
     else:
         return JSONResponse(
             status_code=403,
@@ -328,7 +340,7 @@ async def reset_progress(key: str):
         )
 
 
-@router.get("/check_key/{key}", status_code=status.HTTP_200_OK)
+@router.get("/check_key/{key}", status_code=status.HTTP_200_OK, include_in_schema=False)
 async def check_key(key: str):
     if next(filter(lambda c: c.uuid == key, commanders), None):
         return JSONResponse(
