@@ -27,7 +27,7 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
-    flags_to_find = 12
+    flags_to_find = 13
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "

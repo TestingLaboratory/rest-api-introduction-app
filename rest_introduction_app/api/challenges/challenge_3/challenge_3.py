@@ -12,6 +12,10 @@ challenge_prefix = "/challenge/genetics"
 router = APIRouter(prefix=challenge_prefix)
 security = HTTPBasic()
 
+#TODO use real RNA for Sars-Cov-2
+#TODO perform mutations and prepare translation algorithm for the sequence
+#TODO Prepare "viruspedia" to include inforamtion about DNA/RNA translation, list of amino acid, etc.
+
 sequence = {
     "isolated": "GUCAUUCUCCUAAGAAGCUAUUAGGCUAGGCCUAAUGCCCGAUCGA",
     "copy": "GUCAUUCUCCUAAGAAGCUAUUAGGCUAGGCCUAAUGCCCGAUCGA"
