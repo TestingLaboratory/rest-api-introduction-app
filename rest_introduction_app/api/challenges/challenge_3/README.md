@@ -7,6 +7,9 @@ Try to change the RNA at your disposal to uncover as many medical breakthroughs 
 Good luck researcher.
 Our souls fates' depend on you!
 
+https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthomegithub.com
+https://blast.ncbi.nlm.nih.gov/Blast.cgi
+
 ### HOW TO COLLECT FLAGS IN CHALLENGE 3:
 
 ---
