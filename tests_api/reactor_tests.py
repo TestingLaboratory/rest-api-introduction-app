@@ -1,11 +1,11 @@
 import re
 
 import requests
-from faker import Faker
 
 from tests_api.constants import *
+from tests_api.models.commander import Commander
 
-FAKE = Faker()
+commander = Commander()
 
 
 def test_get_information():
@@ -15,103 +15,83 @@ def test_get_information():
 
 
 def test_check_in():
-    fake_name = FAKE.name()
-    payload = {"name": fake_name}
-    response = requests.post(f"{BASE_URL}/{REACTOR_PATH}/desk", json=payload)
+    commander_not_registered = Commander(register_at_desk=False)
+    payload_data = {"name": commander_not_registered.name}
+    response = requests.post(f"{BASE_URL}/{REACTOR_PATH}/desk", json=payload_data)
     assert response.status_code == 201
     assert response.json()["key"]
     assert response.json()["message"] == CHECK_IN_MESSAGE
 
 
-def test_control_room(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room")
+def test_control_room():
+    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     assert response.status_code == 200
     assert response.json()["reactor data"]
     assert re.search(CONTROL_ROOM_MESSAGE, response.json()["message"])
 
 
-def test_delete_control_rod(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room")
+def test_delete_control_rod():
+    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     used_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__control_rods"]).index(
         "control_rod")
-    response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/control_rods/{used_rod_index}")
+    response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/control_rods/{used_rod_index}")
     assert response.status_code == 202
     assert re.search(DELETE_CONTROL_ROD_MESSAGE, response.json()["message"])
 
 
-def test_place_control_rod(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room")
+def test_place_control_rod():
+    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     empty_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__control_rods"]).index("")
-    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/control_rods/{empty_rod_index}")
+    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/control_rods/{empty_rod_index}")
     assert response.status_code == 200
     assert re.search(PLACE_CONTROL_ROD_MESSAGE, response.json()["message"])
 
 
-def test_manipulate_az_5(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
+def test_manipulate_az_5():
     payload = {"pressed": True}
-    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/az_5", json=payload)
+    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/az_5", json=payload)
     assert response.status_code == 425
     assert re.search(MANIPULATE_AZ_5_MESSAGE, response.json()["message"])
     assert re.search(CHERENKOV_CHICKEN_FLAG, response.json()["flag"])
 
 
-def test_look_into_reactor_core(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/reactor_core")
+def test_look_into_reactor_core():
+    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/reactor_core")
     assert response.status_code == 200
     assert re.search(LOOK_INTO_REACTOR_CORE_MESSAGE, response.json()["message"])
     assert re.search(CURIOUS_FLAG, response.json()["flag"])
 
 
-def test_analysis(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/analysis")
+def test_analysis():
+    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/analysis")
     assert response.status_code == 200
     assert re.search(ANALYSIS_MESSAGE, response.json()["message"])
 
 
-def test_remove_fuel_rod(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room")
+def test_remove_fuel_rod():
+    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     fuel_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__fuel_rods"]).index("fuel_rod")
-    response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/fuel_rods/{fuel_rod_index}")
+    response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/fuel_rods/{fuel_rod_index}")
     assert response.status_code == 202
     assert re.search(REMOVE_FUEL_ROD_MESSAGE, response.json()["message"])
 
 
-def test_put_fuel_rod(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room")
+def test_put_fuel_rod():
+    control_room_response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     empty_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__fuel_rods"]).index("")
-    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{key}/control_room/fuel_rods/{empty_rod_index}")
+    response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/fuel_rods/{empty_rod_index}")
     assert response.status_code == 200
     assert re.search(PUT_FUEL_ROD_MESSAGE, response.json()["message"])
 
 
-def test_reset_progress(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{key}/reset_progress")
+def test_reset_progress():
+    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/reset_progress")
     assert response.status_code == 200
     assert response.json()["message"] == RESET_PROGRESS_MESSAGE
     assert response.json()["flag"] == DIDNT_SEE_THE_GRAPHITE_FLAG
 
 
-def test_check_key(obtain_a_key):
-    fake_name = FAKE.name()
-    key = obtain_a_key(fake_name)
-    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/check_key/{key}")
+def test_check_key():
+    response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/check_key/{commander.key}")
     assert response.status_code == 200
     assert response.json()["message"] == CHECK_KEY_MESSAGE
