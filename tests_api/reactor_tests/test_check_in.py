@@ -4,12 +4,10 @@ import string
 import requests
 
 from tests_api.constants import BASE_URL, REACTOR_PATH, CHECK_IN_MESSAGE, FIELD_REQUIRED
-from tests_api.models.commander import Commander
 
 
-def test_check_in():
-    commander_not_registered = Commander(register_at_desk=False)
-    payload = {"name": commander_not_registered.name}
+def test_check_in(commander):
+    payload = {"name": commander.name}
     response = requests.post(f"{BASE_URL}/{REACTOR_PATH}/desk", json=payload)
     assert response.status_code == 201
     assert response.json()["key"]
