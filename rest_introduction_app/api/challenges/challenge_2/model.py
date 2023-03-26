@@ -2,6 +2,7 @@ import uuid
 from dataclasses import dataclass
 from random import randint
 from typing import List
+from copy import deepcopy
 
 from dataclasses_json import dataclass_json
 from pydantic import BaseModel
@@ -134,10 +135,8 @@ class ReactorCore:
             return f"No such Control Rod with number >>{index}<<!"
 
     def press_az_5(self):
-        control_rods_while_pressed = self.__control_rods
         self.__control_rods = list(map(lambda x: "control_rod", self.__control_rods))
-        if (self.__state == "Heavily Xenon-135 poisoned!" and self.__power > 1500)\
-                or (not all(control_rods_while_pressed)):
+        if self.__state == "Heavily Xenon-135 poisoned!" and self.__power > 1500:
             self.__power = 30000
             self.__state = "BOOM!!!"
             self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"

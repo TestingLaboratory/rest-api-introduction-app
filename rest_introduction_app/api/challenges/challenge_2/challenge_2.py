@@ -263,7 +263,7 @@ async def analysis(key: str):
             }
         else:
             return {
-                "message": f"Run and check the reactor core!!! /{commander.uuid}/reactor_core"
+                "message": f"Run and check the reactor core!!!"
             }
     else:
         return JSONResponse(
