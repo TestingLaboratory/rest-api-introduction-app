@@ -27,7 +27,7 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
-    flags_to_find = 11
+    flags_to_find = 13
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
@@ -120,6 +120,11 @@ async def control_rod_delete(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.remove_control_rod_at(rod_number)
         if "Removing control rod" in result:
             commander.control_rod_manipulation += 1
@@ -148,6 +153,14 @@ async def place_control_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "message": "Something's wrong... It's not working...",
+                    "flag": f"${{{commander.uuid}_couldn't_lower_the_rods_into_the_core_because_there's_no_core!}}"
+                }
+            )
         result = reactor.add_control_rod_at(rod_number)
         if "Adding control rod" in result:
             commander.control_rod_manipulation += 1
@@ -269,6 +282,11 @@ async def remove_fuel_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.remove_fuel_rod_at(rod_number)
         if "Removing fuel rod" in result:
             commander.fuel_rod_manipulation += 1
@@ -297,6 +315,11 @@ async def place_fuel_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.add_fuel_rod_at(rod_number)
         if "Adding fuel rod" in result:
             commander.fuel_rod_manipulation += 1

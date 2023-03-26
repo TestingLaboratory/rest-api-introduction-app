@@ -38,4 +38,4 @@ app.include_router(router=challenge_2.router,
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=9011)
+    uvicorn.run("__main__:app", host="0.0.0.0", port=9011, reload=True)
