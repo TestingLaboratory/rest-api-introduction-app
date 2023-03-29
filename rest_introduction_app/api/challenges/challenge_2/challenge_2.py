@@ -27,7 +27,7 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
-    flags_to_find = 13
+    flags_to_find = 14
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
@@ -292,7 +292,7 @@ async def remove_fuel_rod(key: str, rod_number: int):
         if "Removing fuel rod" in result:
             commander.fuel_rod_manipulation += 1
         manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
-            commander.fuel_rod_manipulation > 30 else None
+            commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
         }
@@ -358,8 +358,8 @@ async def reset_progress(key: str):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
-                "message": "No such Commander!",
-                "flag": "${flag_atomna_elektrostancja_erector}"
+                "message": "Who are you?!",
+                "flag": "${flag_what_is_the_cost_of_lies}"
             }
         )
 
