@@ -19,7 +19,7 @@ app = FastAPI(
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
-    except HTTPException as _:
+    except TypeError as _:
         return JSONResponse({"message": "${nothing_to_see_here_move_along}"}, status_code=404)
 
 
