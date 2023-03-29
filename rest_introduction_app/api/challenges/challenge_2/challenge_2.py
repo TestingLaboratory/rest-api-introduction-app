@@ -32,7 +32,7 @@ async def get_information(
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
                        f"Your task is to perform the reactor test. "
-                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Bring the power level above 1200 but below 1500 and keep the reactor Operational. "
                        f"Don't forget to pick up the key on your way up. "
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
@@ -43,7 +43,7 @@ async def get_information(
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
                        f"Your task is to perform the reactor test. "
-                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Bring the power level above 1200 but below 1500 and keep the reactor Operational. "
                        f"Use /{{key}}/control_room/analysis to peek at reactor core. "
                        f"Use /{{key}}/control_room to see full info about the reactor. "
                        f"Check in at the /desk to get your key to control room. "
@@ -250,7 +250,7 @@ async def analysis(key: str):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
-        if reactor.state == "Operational" and 1000 < reactor.power < 1500:
+        if reactor.state == "Operational" and 1200 < reactor.power < 1500:
             return {
                 "message": f"{commander.name}! You have successfully completed the test!!! "
                            f"General Secretary awards you!",
@@ -258,7 +258,8 @@ async def analysis(key: str):
             }
         elif reactor.state != "BOOM!!!":
             return {
-                "message": f"{commander.name}, the reactor is in state {reactor.state}! "
+                "message": f"{commander.name.title()},"
+                           f" the reactor '{reactor.description}' is in state {reactor.state}! "
                            f"It's power is on level {reactor.power}"
             }
         else:
@@ -324,7 +325,7 @@ async def place_fuel_rod(key: str, rod_number: int):
         if "Adding fuel rod" in result:
             commander.fuel_rod_manipulation += 1
         manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
-            commander.fuel_rod_manipulation > 30 else None
+            commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
         }

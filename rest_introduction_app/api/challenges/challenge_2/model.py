@@ -2,7 +2,6 @@ import uuid
 from dataclasses import dataclass
 from random import randint
 from typing import List
-from copy import deepcopy
 
 from dataclasses_json import dataclass_json
 from pydantic import BaseModel
@@ -57,6 +56,10 @@ class ReactorCore:
         return self.__uuid
 
     @property
+    def description(self):
+        return self.__description
+
+    @property
     def power(self):
         return self.__power
 
@@ -77,7 +80,7 @@ class ReactorCore:
         return self.__state
 
     def __calculate_state(self):
-        if self.__state not in ["Unstable",  "Heavily Xenon-135 poisoned!"]:
+        if self.__state not in ["Unstable", "Heavily Xenon-135 poisoned!"]:
             self.__state = "Operational"
         try:
             rods_ratio = len(list(filter(lambda x: x != "", self.__fuel_rods))) \
@@ -136,11 +139,13 @@ class ReactorCore:
 
     def press_az_5(self):
         self.__control_rods = list(map(lambda x: "control_rod", self.__control_rods))
-        if self.__state == "Heavily Xenon-135 poisoned!" and self.__power > 1500:
+        if self.__state in ["Heavily Xenon-135 poisoned!", "Critical! ${safety_procedure_recklessly_omitted}"] \
+                and self.__power > 2000:
             self.__power = 30000
             self.__state = "BOOM!!!"
             self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"
-        elif self.__state in ["Operational", "Unstable"]:
+        # elif self.__state in ["Operational", "Unstable"]:
+        else:
             self.__power = 0
         return self.__state
 
@@ -153,7 +158,7 @@ class ReactorCore:
                 return "Reactor is shut down... Remove some of the control rods first!"
             self.__calculate_state()
             if self.__state == "Operational":
-                self.__power += int(self.__power * 0.05) #originally 20
+                self.__power += int(self.__power * 0.05)  # originally 20
             elif self.__state == "Unstable":
                 self.__power += randint(50, 100)
             if self.__state == "Heavily Xenon-135 poisoned!":
@@ -171,7 +176,7 @@ class ReactorCore:
             self.__calculate_state()
             power_to_subtract = 0
             if self.__state == "Operational":
-                power_to_subtract = int(self.__power * 0.05)#orginally 20
+                power_to_subtract = int(self.__power * 0.05)  # orginally 20
             elif self.__state == "Unstable":
                 power_to_subtract = randint(0, 10)
             elif self.__state == "Heavily Xenon-135 poisoned!":
