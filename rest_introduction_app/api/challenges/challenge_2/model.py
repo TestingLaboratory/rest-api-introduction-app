@@ -144,7 +144,6 @@ class ReactorCore:
             self.__power = 30000
             self.__state = "BOOM!!!"
             self.__description = "${flag_for_reactor_due_to_3000%_work_norm}"
-        # elif self.__state in ["Operational", "Unstable"]:
         else:
             self.__power = 0
         return self.__state
