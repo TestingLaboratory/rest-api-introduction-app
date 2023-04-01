@@ -4,6 +4,10 @@ from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import socket
+
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
 
 from rest_introduction_app.api.challenges.challenge_2 import challenge_2
 
@@ -25,6 +29,11 @@ async def catch_exceptions_middleware(request: Request, call_next):
 
 app.add_exception_handler(404, catch_exceptions_middleware)
 
+# origins list, right now used only ["*"] for all origins
+origins = [
+    "http://localhost:3000",
+    "localhost:3000",
+]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
