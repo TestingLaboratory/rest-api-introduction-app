@@ -387,7 +387,7 @@ async def clear_everything():
     """
     Method to clear all data when called - to reset for another training group
     """
-    global commanders, reactors
+    global commanders
 
     return {
         "message": "To be Purged",
