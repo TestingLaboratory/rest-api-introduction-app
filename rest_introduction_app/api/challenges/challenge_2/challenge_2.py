@@ -380,3 +380,13 @@ async def check_key(key: str):
                 "message": "Wrong key...\nAre you sure you know where you are?\nThis is classified area.",
             }
         )
+
+
+@router.get("/clear_everything", include_in_schema=False)
+async def clear_everything():
+    """
+    Method to clear all data when called - to reset for another training group
+    """
+    global commanders, reactors
+    commanders = []
+    reactors = []
