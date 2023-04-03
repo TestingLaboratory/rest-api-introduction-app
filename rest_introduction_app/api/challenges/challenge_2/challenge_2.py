@@ -8,7 +8,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from unidecode import unidecode
 
-from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
+from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5, Purge
 
 challenge_prefix = "/challenge/reactor"
 challenge_tag = "Challenge - RBMK Reactor test"
@@ -388,5 +388,38 @@ async def clear_everything():
     Method to clear all data when called - to reset for another training group
     """
     global commanders, reactors
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "message": "To be purged",
+            "commanders": commanders,
+            "reactors": reactors,
+        }
+    )
+
+
+@router.post("/clear_everything", include_in_schema=False)
+async def clear_everything(purge: Purge):
+    """
+    Method to clear all data when called - to reset for another training group
+    """
+    global commanders, reactors
     commanders = []
     reactors = []
+    if purge.purge:
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content={
+                "message": "Purged everything",
+                "commanders": commanders,
+                "reactors": reactors,
+            }
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={
+                "message": "Nope.",
+            }
+        )

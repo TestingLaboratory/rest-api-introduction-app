@@ -7,6 +7,10 @@ from dataclasses_json import dataclass_json
 from pydantic import BaseModel
 
 
+class Purge(BaseModel):
+    purge: bool = True
+
+
 class CommanderCheckIn(BaseModel):
     name: str
 
