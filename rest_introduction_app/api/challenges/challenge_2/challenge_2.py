@@ -66,11 +66,11 @@ async def check_in(commander_check_in: CommanderCheckIn):
         reactors.append(ReactorCore(commander.uuid))
         content = {
             "message": f"Take the key to your control room. "
-                       f"Keep it safe. use it as resource path to check on your RMBK-100 reactor! "
+                       f"Keep it safe. use it as resource path to check on your RBMK-1000 reactor! "
                        "Use following: /{key}/control_room to gain knowledge how to operate reactor. "
                        "You may see if the core is intact here: /{key}/reactor_core . "
                        "If anything goes wrong push AZ-5 safety button to put all control rods in place!"
-                       "Good luck Commander.",
+                       " Good luck Commander.",
             "key": f"{commander.uuid}"
         }
         response = JSONResponse(
