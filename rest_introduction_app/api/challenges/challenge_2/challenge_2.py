@@ -382,21 +382,17 @@ async def check_key(key: str):
         )
 
 
-@router.get("/clear_everything", include_in_schema=False)
+@router.get("/clear_everything", status_code=status.HTTP_200_OK, include_in_schema=False)
 async def clear_everything():
     """
     Method to clear all data when called - to reset for another training group
     """
     global commanders, reactors
 
-    return JSONResponse(
-        status_code=status.HTTP_200_OK,
-        content={
-            "message": "To be purged",
-            "commanders": commanders,
-            "reactors": reactors,
-        }
-    )
+    return {
+        "message": "To be Purged",
+        "commanders": commanders
+    }
 
 
 @router.post("/clear_everything", include_in_schema=False)
