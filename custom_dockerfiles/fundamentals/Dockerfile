@@ -10,6 +10,6 @@ COPY rest_introduction_app /app/rest_introduction_app
 COPY shell_scripts /app/shell_scripts
 RUN chmod -R +x ./shell_scripts
 
-EXPOSE 8083
+EXPOSE 8080
 
 ENTRYPOINT ["/bin/sh", "./shell_scripts/run_fundamentals.sh"]
