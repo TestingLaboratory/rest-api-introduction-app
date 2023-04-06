@@ -143,7 +143,7 @@ class ReactorCore:
 
     def press_az_5(self):
         self.__control_rods = list(map(lambda x: "control_rod", self.__control_rods))
-        if self.__state in ["Heavily Xenon-135 poisoned!", "Critical! ${safety_procedure_recklessly_omitted}"] \
+        if self.__state in ["Heavily Xenon-135 poisoned!", "Critical! ${flag_safety_procedure_recklessly_omitted}"] \
                 and self.__power > 2000:
             self.__power = 30000
             self.__state = "BOOM!!!"
