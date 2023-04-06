@@ -24,16 +24,11 @@ async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
     except TypeError as _:
-        return JSONResponse({"message": "${nothing_to_see_here_move_along}"}, status_code=404)
+        return JSONResponse({"message": "${flag_nothing_to_see_here_move_along}"}, status_code=404)
 
 
 app.add_exception_handler(404, catch_exceptions_middleware)
 
-# origins list, right now used only ["*"] for all origins
-origins = [
-    "http://localhost:3000",
-    "localhost:3000",
-]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
