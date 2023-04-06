@@ -79,7 +79,7 @@ async def check_in(commander_check_in: CommanderCheckIn):
         )
         response.set_cookie("secret_documentation",
                             "Reactor will blow up if it is poisoned, overpowered and you press AZ5"
-                            f"${{flag_keeper_of_secrets_{commander.name}}}")
+                            f"${{flag_keeper_of_secrets}}")
         return response
     else:
 
@@ -128,7 +128,7 @@ async def control_rod_delete(key: str, rod_number: int):
         result = reactor.remove_control_rod_at(rod_number)
         if "Removing control rod" in result:
             commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = f"${{flag_control_rod_manipulator}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -158,13 +158,13 @@ async def place_control_rod(key: str, rod_number: int):
                 status_code=409,
                 content={
                     "message": "Something's wrong... It's not working...",
-                    "flag": f"${{{commander.uuid}_couldn't_lower_the_rods_into_the_core_because_there's_no_core!}}"
+                    "flag": f"${{couldn't_lower_the_rods_into_the_core_because_there's_no_core!}}"
                 }
             )
         result = reactor.add_control_rod_at(rod_number)
         if "Adding control rod" in result:
             commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = f"${{flag_control_rod_manipulator}}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -194,7 +194,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
             return {
                 "sound": result,
                 "message": f"Do you taste metal?!",
-                "flag": f"${{flag_dead_in_two_weeks_{commander.name}}}"
+                "flag": f"${{flag_dead_in_two_weeks}}"
             }
         else:
             return JSONResponse(
@@ -202,7 +202,7 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
                 content={
                     "message": f"Right, Comrade {commander.name}, Reactor State is: {result}. "
                                f"Afraid of a meltdown, huh?",
-                    "flag": f"${{flag_cherenkov_chicken_{commander.name}}}"
+                    "flag": f"${{flag_cherenkov_chicken}}"
                 }
             )
     elif commander and reactor and not az_5_button.pressed:
@@ -229,12 +229,12 @@ async def look_into_reactor_core(key: str):
         if reactor.state != "BOOM!!!":
             return {
                 "message": f"{commander.name}, the core looks fine!",
-                "flag": f"${{flag_curious_arent_we_{commander.name}}}"
+                "flag": f"${{flag_curious_aren't_we}}"
             }
         else:
             return {
                 "message": "You've looked into radiating gates of hell...",
-                "flag": f"${{flag_death_from_acute_radiation_poisoning_{commander.name}}}"
+                "flag": f"${{flag_death_from_acute_radiation_poisoning}}"
             }
     else:
         return JSONResponse(
@@ -254,7 +254,7 @@ async def analysis(key: str):
             return {
                 "message": f"{commander.name}! You have successfully completed the test!!! "
                            f"General Secretary awards you!",
-                "flag": f" ${{flag_plutonium_generator_{commander.name}}}"
+                "flag": f" ${{flag_plutonium_generator}}"
             }
         elif reactor.state != "BOOM!!!":
             return {
@@ -291,7 +291,7 @@ async def remove_fuel_rod(key: str, rod_number: int):
         result = reactor.remove_fuel_rod_at(rod_number)
         if "Removing fuel rod" in result:
             commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = f"${{flag_fuel_rod_manipulator}}" if \
             commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -324,7 +324,7 @@ async def place_fuel_rod(key: str, rod_number: int):
         result = reactor.add_fuel_rod_at(rod_number)
         if "Adding fuel rod" in result:
             commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = f"${{flag_fuel_rod_manipulator}}" if \
             commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",

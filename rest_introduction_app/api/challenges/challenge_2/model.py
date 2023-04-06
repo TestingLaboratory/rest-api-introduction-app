@@ -94,7 +94,7 @@ class ReactorCore:
             elif rods_ratio > 10 or (self.__power > 2000 and self.__state != "Heavily Xenon-135 poisoned!"):
                 self.__state = "Unstable"
         except ZeroDivisionError:
-            self.__state = "Critical! ${safety_procedure_recklessly_omitted}"
+            self.__state = "Critical! ${flag_safety_procedure_recklessly_omitted}"
 
     def remove_control_rod_at(self, index: int) -> str:
         try:
