@@ -13,7 +13,7 @@ def test_delete_control_rod(commander):
         "control_rod")
     response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/control_rods/{used_rod_index}")
     assert response.status_code == 202
-    assert re.search(DELETE_CONTROL_ROD_MESSAGE, response.json()["message"])
+    assert re.fullmatch(DELETE_CONTROL_ROD_MESSAGE, response.json()["message"])
 
 
 def test_delete_control_rod_already_removed(commander):
@@ -22,7 +22,7 @@ def test_delete_control_rod_already_removed(commander):
     empty_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__control_rods"]).index("")
     response = requests.delete(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/control_rods/{empty_rod_index}")
     assert response.status_code == 202
-    assert re.search(PLACE_CONTROL_ROD_ALREADY_REMOVED_MESSAGE, response.json()["message"])
+    assert re.fullmatch(PLACE_CONTROL_ROD_ALREADY_REMOVED_MESSAGE, response.json()["message"])
 
 
 def test_place_control_rod(commander):
@@ -31,7 +31,7 @@ def test_place_control_rod(commander):
     empty_rod_index = list(control_room_response.json()["reactor data"]["_ReactorCore__control_rods"]).index("")
     response = requests.put(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/control_rods/{empty_rod_index}")
     assert response.status_code == 200
-    assert re.search(PLACE_CONTROL_ROD_MESSAGE, response.json()["message"])
+    assert re.fullmatch(PLACE_CONTROL_ROD_MESSAGE, response.json()["message"])
 
 
 def test_place_control_rod_already_in_place(commander):

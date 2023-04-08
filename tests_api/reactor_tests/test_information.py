@@ -20,7 +20,7 @@ def test_control_room(commander):
     response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room")
     assert response.status_code == 200
     assert response.json()["reactor data"]
-    assert re.search(CONTROL_ROOM_MESSAGE, response.json()["message"])
+    assert re.fullmatch(CONTROL_ROOM_MESSAGE, response.json()["message"])
 
 
 def test_control_room_key_error():
@@ -34,15 +34,15 @@ def test_look_into_reactor_core(commander):
     commander.obtain_a_key()
     response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/reactor_core")
     assert response.status_code == 200
-    assert re.search(LOOK_INTO_REACTOR_CORE_MESSAGE, response.json()["message"])
-    assert re.search(CURIOUS_FLAG, response.json()["flag"])
+    assert re.fullmatch(LOOK_INTO_REACTOR_CORE_MESSAGE, response.json()["message"])
+    assert re.fullmatch(CURIOUS_FLAG, response.json()["flag"])
 
 
 def test_analysis(commander):
     commander.obtain_a_key()
     response = requests.get(f"{BASE_URL}/{REACTOR_PATH}/{commander.key}/control_room/analysis")
     assert response.status_code == 200
-    assert re.search(ANALYSIS_MESSAGE, response.json()["message"])
+    assert re.fullmatch(ANALYSIS_MESSAGE, response.json()["message"])
 
 
 def test_check_key(commander):
