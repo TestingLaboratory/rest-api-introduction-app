@@ -4,6 +4,10 @@ from starlette.exceptions import HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+import socket
+
+hostname = socket.gethostname()
+ip_address = socket.gethostbyname(hostname)
 
 from rest_introduction_app.api.challenges.challenge_2 import challenge_2
 
@@ -19,8 +23,8 @@ app = FastAPI(
 async def catch_exceptions_middleware(request: Request, call_next):
     try:
         return await call_next(request)
-    except HTTPException as _:
-        return JSONResponse({"message": "${nothing_to_see_here_move_along}"}, status_code=404)
+    except TypeError as _:
+        return JSONResponse({"message": "${flag_nothing_to_see_here_move_along}"}, status_code=404)
 
 
 app.add_exception_handler(404, catch_exceptions_middleware)
@@ -38,4 +42,4 @@ app.include_router(router=challenge_2.router,
 
 
 if __name__ == '__main__':
-    uvicorn.run(app, host="0.0.0.0", port=9011)
+    uvicorn.run("__main__:app", host="0.0.0.0", port=9011, reload=True)

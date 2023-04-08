@@ -25,29 +25,18 @@ async def get_information():
                    f"Remember that this is not purely technical task. "
                    f"You'll role play and use your knowledge to find treasures your looking for. "
                    f"If you have any questions - ask. "
-                   f"Try and found as many flags as possible.(Five, there are five.) "
-                   f"begin with shooting at /tryout. "
+                   f"Try and found as many flags as possible. (Five, there are five.) "
+                   f"begin with shooting at /flag_info. "
     }
 
 
-@router.get("/tryout", status_code=status.HTTP_200_OK)
-async def tryout():
-    """
-    First steps in your CTF journey!
-    """
-    return {
-        "message": f"Good! Toy have tried to GET a resource."
-                   f"Now you have to GET something else... /flag"
-    }
-
-
-@router.get("/flag", status_code=status.HTTP_200_OK)
+@router.get("/flag_info", status_code=status.HTTP_200_OK)
 async def flag_info():
     """
     Fetch flags information
     """
     return {
-        "flag": "A flag has a form of ${<flag_name>}",
+        "flag": "A flag has a form of: ${<flag_name>}",
         "message": "Use your exploratory skills and feel the challenge's theme to obtain flags",
     }
 
@@ -68,6 +57,9 @@ async def flag_info(flag_id: int):
     )
 
 
+USERS = []
+
+
 class UserRegistration(BaseModel):
     username: str
     password: str
@@ -81,9 +73,6 @@ class User:
 
     def __eq__(self, other):
         return self.uuid == other.uuid
-
-
-USERS = []
 
 
 @router.post("/register")

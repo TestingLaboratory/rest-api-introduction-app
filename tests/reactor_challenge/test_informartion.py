@@ -32,8 +32,8 @@ def test_check_in():
     assert response.status_code == 201
     assert response.json().get('key')
     assert response.json().get('message') == 'Take the key to your control room. Keep it safe. use it as \n' \
-                                             'resource path to check on your RMBK-100 reactor! Use following: ' \
+                                             'resource path to check on your RBMK-1000 reactor! Use following: ' \
                                              '/{key}/control_room to gain knowledge how to operate reactor.' \
                                              ' You may see if the core is intact here: /{key}/reactor_core . If ' \
                                              'anything goes wrong push AZ-5 safety button to put all control ' \
-                                             'rods in place!Good luck Commander.'
+                                             'rods in place! Good luck Commander.'

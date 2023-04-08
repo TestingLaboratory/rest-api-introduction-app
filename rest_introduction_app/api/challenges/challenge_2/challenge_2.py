@@ -8,7 +8,7 @@ from starlette import status
 from starlette.responses import JSONResponse
 from unidecode import unidecode
 
-from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5
+from rest_introduction_app.api.challenges.challenge_2.model import CommanderCheckIn, Commander, ReactorCore, AZ5, Purge
 
 challenge_prefix = "/challenge/reactor"
 challenge_tag = "Challenge - RBMK Reactor test"
@@ -18,7 +18,7 @@ commanders: List[Commander] = []
 reactors: List[ReactorCore] = []
 
 
-# TODO create a single object for each flags_to_find
+
 
 @router.get("/information", status_code=status.HTTP_200_OK)
 async def get_information(
@@ -27,12 +27,13 @@ async def get_information(
     """
     Get this resource to obtain mission debrief
     """
-    flags_to_find = 11
+    # TODO create a single object for each flags_to_find
+    flags_to_find = 13
     if for_frontend == "only":
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
                        f"Your task is to perform the reactor test. "
-                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Bring the power level above 1200 but below 1500 and keep the reactor Operational. "
                        f"Don't forget to pick up the key on your way up. "
                        f"Put in fuel rods or pull out control rods to raise the power. "
                        f"Put in control rods or pull out fuel rods to decrease the power. "
@@ -43,7 +44,7 @@ async def get_information(
         return {
             "message": f"You are the Tech Commander of RBMK reactor power plant. "
                        f"Your task is to perform the reactor test. "
-                       f"Bring the power level above 1000 but below 1500 and keep the reactor Operational. "
+                       f"Bring the power level above 1200 but below 1500 and keep the reactor Operational. "
                        f"Use /{{key}}/control_room/analysis to peek at reactor core. "
                        f"Use /{{key}}/control_room to see full info about the reactor. "
                        f"Check in at the /desk to get your key to control room. "
@@ -66,11 +67,11 @@ async def check_in(commander_check_in: CommanderCheckIn):
         reactors.append(ReactorCore(commander.uuid))
         content = {
             "message": f"Take the key to your control room. "
-                       f"Keep it safe. use it as resource path to check on your RMBK-100 reactor! "
+                       f"Keep it safe. use it as resource path to check on your RBMK-1000 reactor! "
                        "Use following: /{key}/control_room to gain knowledge how to operate reactor. "
                        "You may see if the core is intact here: /{key}/reactor_core . "
                        "If anything goes wrong push AZ-5 safety button to put all control rods in place!"
-                       "Good luck Commander.",
+                       " Good luck Commander.",
             "key": f"{commander.uuid}"
         }
         response = JSONResponse(
@@ -79,7 +80,7 @@ async def check_in(commander_check_in: CommanderCheckIn):
         )
         response.set_cookie("secret_documentation",
                             "Reactor will blow up if it is poisoned, overpowered and you press AZ5"
-                            f"${{flag_keeper_of_secrets_{commander.name}}}")
+                            "${flag_keeper_of_secrets}")
         return response
     else:
 
@@ -120,10 +121,15 @@ async def control_rod_delete(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.remove_control_rod_at(rod_number)
         if "Removing control rod" in result:
             commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = "${flag_control_rod_manipulator}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -148,10 +154,18 @@ async def place_control_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={
+                    "message": "Something's wrong... It's not working...",
+                    "flag": "${couldn't_lower_the_rods_into_the_core_because_there's_no_core!}"
+                }
+            )
         result = reactor.add_control_rod_at(rod_number)
         if "Adding control rod" in result:
             commander.control_rod_manipulation += 1
-        manipulator_flag = f"${{flag_control_rod_manipulator_{commander.name}}}" if \
+        manipulator_flag = "${flag_control_rod_manipulator}" if \
             commander.control_rod_manipulation > 30 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
@@ -180,16 +194,16 @@ async def manipulate_az_5(az_5_button: AZ5, key: str):
         if result == "BOOM!!!":
             return {
                 "sound": result,
-                "message": f"Do you taste metal?!",
-                "flag": f"${{flag_dead_in_two_weeks_{commander.name}}}"
+                "message": "Do you taste metal?!",
+                "flag": "${flag_dead_in_two_weeks}"
             }
         else:
             return JSONResponse(
                 status_code=425,
                 content={
                     "message": f"Right, Comrade {commander.name}, Reactor State is: {result}. "
-                               f"Afraid of a meltdown, huh?",
-                    "flag": f"${{flag_cherenkov_chicken_{commander.name}}}"
+                               "Afraid of a meltdown, huh?",
+                    "flag": "${flag_cherenkov_chicken}"
                 }
             )
     elif commander and reactor and not az_5_button.pressed:
@@ -216,12 +230,12 @@ async def look_into_reactor_core(key: str):
         if reactor.state != "BOOM!!!":
             return {
                 "message": f"{commander.name}, the core looks fine!",
-                "flag": f"${{flag_curious_arent_we_{commander.name}}}"
+                "flag": "${flag_curious_aren't_we}"
             }
         else:
             return {
                 "message": "You've looked into radiating gates of hell...",
-                "flag": f"${{flag_death_from_acute_radiation_poisoning_{commander.name}}}"
+                "flag": "${flag_death_from_acute_radiation_poisoning}"
             }
     else:
         return JSONResponse(
@@ -237,20 +251,21 @@ async def analysis(key: str):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
-        if reactor.state == "Operational" and 1000 < reactor.power < 1500:
+        if reactor.state == "Operational" and 1200 < reactor.power < 1500:
             return {
                 "message": f"{commander.name}! You have successfully completed the test!!! "
                            f"General Secretary awards you!",
-                "flag": f" ${{flag_plutonium_generator_{commander.name}}}"
+                "flag": " ${flag_plutonium_generator}"
             }
         elif reactor.state != "BOOM!!!":
             return {
-                "message": f"{commander.name}, the reactor is in state {reactor.state}! "
+                "message": f"{commander.name.title()},"
+                           f" the reactor '{reactor.description}' is in state {reactor.state}! "
                            f"It's power is on level {reactor.power}"
             }
         else:
             return {
-                "message": f"Run and check the reactor core!!! /{commander.uuid}/reactor_core"
+                "message": f"Run and check the reactor core!!!"
             }
     else:
         return JSONResponse(
@@ -269,11 +284,16 @@ async def remove_fuel_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.remove_fuel_rod_at(rod_number)
         if "Removing fuel rod" in result:
             commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
-            commander.fuel_rod_manipulation > 30 else None
+        manipulator_flag = "${flag_fuel_rod_manipulator}" if \
+            commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
         }
@@ -297,11 +317,16 @@ async def place_fuel_rod(key: str, rod_number: int):
     commander = next(filter(lambda c: c.uuid == key, commanders), None)
     reactor = next(filter(lambda r: r.uuid == key, reactors), None)
     if commander and reactor:
+        if reactor.state == "BOOM!!!":
+            return JSONResponse(
+                status_code=409,
+                content={"message": "Something's wrong... It's not working..."}
+            )
         result = reactor.add_fuel_rod_at(rod_number)
         if "Adding fuel rod" in result:
             commander.fuel_rod_manipulation += 1
-        manipulator_flag = f"${{flag_fuel_rod_manipulator_{commander.name}}}" if \
-            commander.fuel_rod_manipulation > 30 else None
+        manipulator_flag = "${flag_fuel_rod_manipulator}" if \
+            commander.fuel_rod_manipulation > 50 else None
         response = {
             "message": f"Right, {commander.name}, {result}.",
         }
@@ -334,8 +359,8 @@ async def reset_progress(key: str):
         return JSONResponse(
             status_code=status.HTTP_400_BAD_REQUEST,
             content={
-                "message": "No such Commander!",
-                "flag": "${flag_atomna_elektrostancja_erector}"
+                "message": "Who are you?!",
+                "flag": "${flag_what_is_the_cost_of_lies}"
             }
         )
 
@@ -353,6 +378,45 @@ async def check_key(key: str):
         return JSONResponse(
             status_code=status.HTTP_404_NOT_FOUND,
             content={
-                "message": "Wrong key...\nAre you sure you know where you are?\nThis is classified area.",
+                "message": "Wrong key... Are you sure you know where you are? This is classified area.",
+            }
+        )
+
+
+@router.get("/clear_everything", status_code=status.HTTP_200_OK, include_in_schema=False)
+async def clear_everything():
+    """
+    Method to clear all data when called - to reset for another training group
+    """
+    global commanders
+
+    return {
+        "message": "To be Purged",
+        "commanders": commanders
+    }
+
+
+@router.post("/clear_everything", include_in_schema=False)
+async def clear_everything(purge: Purge):
+    """
+    Method to clear all data when called - to reset for another training group
+    """
+    global commanders, reactors
+    commanders = []
+    reactors = []
+    if purge.purge:
+        return JSONResponse(
+            status_code=status.HTTP_202_ACCEPTED,
+            content={
+                "message": "Purged everything",
+                "commanders": commanders,
+                "reactors": reactors,
+            }
+        )
+    else:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content={
+                "message": "Nope.",
             }
         )
